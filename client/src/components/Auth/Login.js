@@ -1,85 +1,93 @@
 // 로그인 컴포넌트
-import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useTranslation } from '../../i18n/useTranslation';
+import React, { Component } from 'react';
+import { authAPI } from '../../utils/api';
 import { Form, Button, Alert, Card } from 'react-bootstrap';
 
-export function Login({ onSwitchToRegister, onLoginSuccess }) {
-    const { t } = useTranslation();
-    const { login } = useAuth();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+class Login extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            email: '',
+            password: '',
+            error: '',
+            loading: false
+        };
+    }
 
-    const handleSubmit = async (e) => {
+    handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
+        this.setState({ error: '', loading: true });
 
         try {
-            await login(email, password);
-            if (onLoginSuccess) {
-                onLoginSuccess();
+            await authAPI.login(this.state.email, this.state.password);
+            if (this.props.onLoginSuccess) {
+                this.props.onLoginSuccess();
             }
         } catch (err) {
-            setError(err.message || t('auth.loginFailed'));
+            this.setState({ error: err.message || '로그인 실패' });
         } finally {
-            setLoading(false);
+            this.setState({ loading: false });
         }
     };
 
-    return (
-        <Card style={{ maxWidth: '400px', margin: '50px auto' }}>
-            <Card.Body>
-                <h2 className="text-center mb-4">{t('auth.login')}</h2>
+    render() {
+        const { email, password, error, loading } = this.state;
+        const { onSwitchToRegister } = this.props;
 
-                {error && <Alert variant="danger">{error}</Alert>}
+        return (
+            <Card style={{ maxWidth: '400px', margin: '50px auto' }}>
+                <Card.Body>
+                    <h2 className="text-center mb-4">로그인</h2>
 
-                <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3">
-                        <Form.Label>{t('auth.email')}</Form.Label>
-                        <Form.Control
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </Form.Group>
+                    {error && <Alert variant="danger">{error}</Alert>}
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>{t('auth.password')}</Form.Label>
-                        <Form.Control
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </Form.Group>
+                    <Form onSubmit={this.handleSubmit}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>이메일</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={email}
+                                onChange={(e) => this.setState({ email: e.target.value })}
+                                required
+                            />
+                        </Form.Group>
 
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        className="w-100"
-                        disabled={loading}
-                    >
-                        {loading ? t('common.loading') : t('auth.loginButton')}
-                    </Button>
-                </Form>
+                        <Form.Group className="mb-3">
+                            <Form.Label>비밀번호</Form.Label>
+                            <Form.Control
+                                type="password"
+                                value={password}
+                                onChange={(e) => this.setState({ password: e.target.value })}
+                                required
+                            />
+                        </Form.Group>
 
-                <div className="text-center mt-3">
-                    <small>
-                        {t('auth.dontHaveAccount')}{' '}
-                        <button
-                            className="btn btn-link p-0"
-                            style={{ textDecoration: 'underline', border: 'none', background: 'none' }}
-                            onClick={onSwitchToRegister}
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            className="w-100"
+                            disabled={loading}
                         >
-                            {t('auth.register')}
-                        </button>
-                    </small>
-                </div>
-            </Card.Body>
-        </Card>
-    );
+                            {loading ? '로딩 중...' : '로그인하기'}
+                        </Button>
+                    </Form>
+
+                    <div className="text-center mt-3">
+                        <small>
+                            계정이 없으신가요?{' '}
+                            <button
+                                className="btn btn-link p-0"
+                                style={{ textDecoration: 'underline', border: 'none', background: 'none' }}
+                                onClick={onSwitchToRegister}
+                            >
+                                회원가입
+                            </button>
+                        </small>
+                    </div>
+                </Card.Body>
+            </Card>
+        );
+    }
 }
+
+export { Login };
