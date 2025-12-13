@@ -31,7 +31,7 @@ export async function onRequest(context) {
   // Authorization 헤더 확인
   const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+    return new Response(JSON.stringify({ error: 'Unauthorized - No token provided' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -40,7 +40,7 @@ export async function onRequest(context) {
   const token = authHeader.substring(7);
 
   try {
-    // JWT 검증 (간단한 구현, 프로덕션에서는 라이브러리 사용)
+    // JWT 검증
     const payload = await verifyJWT(token, env.JWT_SECRET);
 
     // 사용자 정보를 context에 추가
@@ -48,26 +48,60 @@ export async function onRequest(context) {
 
     return next();
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Invalid token' }), {
+    return new Response(JSON.stringify({ error: 'Invalid token', details: error.message }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' }
     });
   }
 }
 
-// 간단한 JWT 검증 함수 (실제로는 라이브러리 사용 권장)
+// JWT 검증 함수 (수정된 버전)
 async function verifyJWT(token, secret) {
-  const [headerB64, payloadB64, signatureB64] = token.split('.');
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    throw new Error('Invalid token format');
+  }
+
+  const [headerB64, payloadB64, signatureB64] = parts;
+
+  // Base64 URL 디코딩
+  const base64urlDecode = (str) => {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (str.length % 4) {
+      str += '=';
+    }
+    return atob(str);
+  };
 
   // Payload 디코딩
-  const payload = JSON.parse(atob(payloadB64));
+  const payload = JSON.parse(base64urlDecode(payloadB64));
 
   // 만료 시간 확인
   if (payload.exp && payload.exp < Date.now() / 1000) {
     throw new Error('Token expired');
   }
 
-  // 실제 프로덕션에서는 서명 검증 필요
-  // 여기서는 간단히 payload만 반환
+  // 서명 검증
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`${headerB64}.${payloadB64}`);
+  const keyData = encoder.encode(secret);
+
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['verify']
+  );
+
+  // 서명을 바이트 배열로 변환
+  const signatureBytes = Uint8Array.from(base64urlDecode(signatureB64), c => c.charCodeAt(0));
+
+  const isValid = await crypto.subtle.verify('HMAC', key, signatureBytes, data);
+
+  if (!isValid) {
+    throw new Error('Invalid signature');
+  }
+
   return payload;
 }

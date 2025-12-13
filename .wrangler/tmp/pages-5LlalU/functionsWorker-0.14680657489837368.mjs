@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-gkmLyU/checked-fetch.js
+// ../.wrangler/tmp/bundle-6GQ94B/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -89,13 +89,23 @@ __name(hashPassword, "hashPassword");
 async function createJWT(payload, secret) {
   const header = { alg: "HS256", typ: "JWT" };
   const exp = Math.floor(Date.now() / 1e3) + 7 * 24 * 60 * 60;
-  const headerB64 = btoa(JSON.stringify(header));
-  const payloadB64 = btoa(JSON.stringify({ ...payload, exp }));
-  const signature = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(`${headerB64}.${payloadB64}.${secret}`)
+  const base64url = /* @__PURE__ */ __name((str) => {
+    return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  }, "base64url");
+  const headerB64 = base64url(JSON.stringify(header));
+  const payloadB64 = base64url(JSON.stringify({ ...payload, exp }));
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`${headerB64}.${payloadB64}`);
+  const keyData = encoder.encode(secret);
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
   );
-  const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)));
+  const signature = await crypto.subtle.sign("HMAC", key, data);
+  const signatureB64 = base64url(String.fromCharCode(...new Uint8Array(signature)));
   return `${headerB64}.${payloadB64}.${signatureB64}`;
 }
 __name(createJWT, "createJWT");
@@ -153,13 +163,23 @@ __name(hashPassword2, "hashPassword");
 async function createJWT2(payload, secret) {
   const header = { alg: "HS256", typ: "JWT" };
   const exp = Math.floor(Date.now() / 1e3) + 7 * 24 * 60 * 60;
-  const headerB64 = btoa(JSON.stringify(header));
-  const payloadB64 = btoa(JSON.stringify({ ...payload, exp }));
-  const signature = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(`${headerB64}.${payloadB64}.${secret}`)
+  const base64url = /* @__PURE__ */ __name((str) => {
+    return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  }, "base64url");
+  const headerB64 = base64url(JSON.stringify(header));
+  const payloadB64 = base64url(JSON.stringify({ ...payload, exp }));
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`${headerB64}.${payloadB64}`);
+  const keyData = encoder.encode(secret);
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
   );
-  const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)));
+  const signature = await crypto.subtle.sign("HMAC", key, data);
+  const signatureB64 = base64url(String.fromCharCode(...new Uint8Array(signature)));
   return `${headerB64}.${payloadB64}.${signatureB64}`;
 }
 __name(createJWT2, "createJWT");
@@ -334,7 +354,7 @@ async function onRequest(context) {
   }
   const authHeader = request.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    return new Response(JSON.stringify({ error: "Unauthorized - No token provided" }), {
       status: 401,
       headers: { "Content-Type": "application/json" }
     });
@@ -345,7 +365,7 @@ async function onRequest(context) {
     context.user = payload;
     return next();
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Invalid token" }), {
+    return new Response(JSON.stringify({ error: "Invalid token", details: error.message }), {
       status: 401,
       headers: { "Content-Type": "application/json" }
     });
@@ -353,10 +373,36 @@ async function onRequest(context) {
 }
 __name(onRequest, "onRequest");
 async function verifyJWT(token, secret) {
-  const [headerB64, payloadB64, signatureB64] = token.split(".");
-  const payload = JSON.parse(atob(payloadB64));
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    throw new Error("Invalid token format");
+  }
+  const [headerB64, payloadB64, signatureB64] = parts;
+  const base64urlDecode = /* @__PURE__ */ __name((str) => {
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (str.length % 4) {
+      str += "=";
+    }
+    return atob(str);
+  }, "base64urlDecode");
+  const payload = JSON.parse(base64urlDecode(payloadB64));
   if (payload.exp && payload.exp < Date.now() / 1e3) {
     throw new Error("Token expired");
+  }
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`${headerB64}.${payloadB64}`);
+  const keyData = encoder.encode(secret);
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["verify"]
+  );
+  const signatureBytes = Uint8Array.from(base64urlDecode(signatureB64), (c) => c.charCodeAt(0));
+  const isValid = await crypto.subtle.verify("HMAC", key, signatureBytes, data);
+  if (!isValid) {
+    throw new Error("Invalid signature");
   }
   return payload;
 }
@@ -902,7 +948,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-gkmLyU/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-6GQ94B/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -934,7 +980,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-gkmLyU/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-6GQ94B/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

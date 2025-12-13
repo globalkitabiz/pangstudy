@@ -72,19 +72,37 @@ async function hashPassword(password) {
         .join('');
 }
 
-// JWT 토큰 생성
+// JWT 토큰 생성 (수정된 버전)
 async function createJWT(payload, secret) {
     const header = { alg: 'HS256', typ: 'JWT' };
     const exp = Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60); // 7일
 
-    const headerB64 = btoa(JSON.stringify(header));
-    const payloadB64 = btoa(JSON.stringify({ ...payload, exp }));
+    // Base64 URL 인코딩
+    const base64url = (str) => {
+        return btoa(str)
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=/g, '');
+    };
 
-    const signature = await crypto.subtle.digest(
-        'SHA-256',
-        new TextEncoder().encode(`${headerB64}.${payloadB64}.${secret}`)
+    const headerB64 = base64url(JSON.stringify(header));
+    const payloadB64 = base64url(JSON.stringify({ ...payload, exp }));
+
+    // 서명 생성
+    const encoder = new TextEncoder();
+    const data = encoder.encode(`${headerB64}.${payloadB64}`);
+    const keyData = encoder.encode(secret);
+
+    const key = await crypto.subtle.importKey(
+        'raw',
+        keyData,
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
     );
-    const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)));
+
+    const signature = await crypto.subtle.sign('HMAC', key, data);
+    const signatureB64 = base64url(String.fromCharCode(...new Uint8Array(signature)));
 
     return `${headerB64}.${payloadB64}.${signatureB64}`;
 }
