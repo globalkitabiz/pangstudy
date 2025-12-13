@@ -93,4 +93,3 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }) {
         </Card>
     );
 }
-```
