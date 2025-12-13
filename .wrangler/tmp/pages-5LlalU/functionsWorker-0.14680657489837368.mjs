@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-WKHKli/checked-fetch.js
+// ../.wrangler/tmp/bundle-QagjFb/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -136,6 +136,54 @@ async function onRequestPost2(context) {
   }
 }
 __name(onRequestPost2, "onRequestPost");
+
+// api/study/[deckId]/due.js
+async function onRequestGet(context) {
+  const { env, params } = context;
+  const deckId = params.deckId;
+  if (!context.user || !context.user.userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  const userId = context.user.userId;
+  try {
+    const deck = await env.DB.prepare(
+      "SELECT id FROM decks WHERE id = ? AND user_id = ?"
+    ).bind(deckId, userId).first();
+    if (!deck) {
+      return new Response(JSON.stringify({ error: "Deck not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const cards = await env.DB.prepare(
+      `SELECT c.id, c.front, c.back, 
+                    r.next_review, r.ease_factor, r.interval_days, r.repetitions
+             FROM cards c
+             LEFT JOIN reviews r ON c.id = r.card_id AND r.user_id = ?
+             WHERE c.deck_id = ? 
+             AND (r.next_review IS NULL OR r.next_review <= DATETIME('now'))
+             ORDER BY RANDOM()
+             LIMIT 20`
+    ).bind(userId, deckId).all();
+    return new Response(JSON.stringify({
+      deckId,
+      cards: cards.results
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Get due cards error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestGet, "onRequestGet");
 
 // api/auth/login.js
 async function onRequestPost3(context) {
@@ -294,8 +342,89 @@ async function createJWT2(payload, secret) {
 }
 __name(createJWT2, "createJWT");
 
+// api/study/review.js
+async function onRequestPost5(context) {
+  const { request, env } = context;
+  if (!context.user || !context.user.userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  const userId = context.user.userId;
+  try {
+    const { cardId, difficulty } = await request.json();
+    if (![0, 1, 2, 3].includes(difficulty)) {
+      return new Response(JSON.stringify({ error: "Invalid difficulty" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const review = await env.DB.prepare(
+      "SELECT * FROM reviews WHERE card_id = ? AND user_id = ?"
+    ).bind(cardId, userId).first();
+    let easeFactor = review ? review.ease_factor : 2.5;
+    let interval = review ? review.interval_days : 0;
+    let repetitions = review ? review.repetitions : 0;
+    if (difficulty === 0) {
+      repetitions = 0;
+      interval = 0;
+    } else {
+      easeFactor = easeFactor + (0.1 - (3 - difficulty) * (0.08 + (3 - difficulty) * 0.02));
+      if (easeFactor < 1.3) {
+        easeFactor = 1.3;
+      }
+      if (difficulty < 2) {
+        repetitions = 0;
+        interval = 0;
+      } else {
+        if (repetitions === 0) {
+          interval = 1;
+        } else if (repetitions === 1) {
+          interval = 6;
+        } else {
+          interval = Math.round(interval * easeFactor);
+        }
+        repetitions++;
+      }
+    }
+    const nextReview = /* @__PURE__ */ new Date();
+    nextReview.setDate(nextReview.getDate() + interval);
+    const nextReviewStr = nextReview.toISOString().replace("T", " ").substring(0, 19);
+    if (review) {
+      await env.DB.prepare(
+        `UPDATE reviews 
+                 SET ease_factor = ?, interval_days = ?, repetitions = ?, 
+                     next_review = ?, reviewed_at = DATETIME('now')
+                 WHERE card_id = ? AND user_id = ?`
+      ).bind(easeFactor, interval, repetitions, nextReviewStr, cardId, userId).run();
+    } else {
+      await env.DB.prepare(
+        `INSERT INTO reviews (card_id, user_id, ease_factor, interval_days, repetitions, next_review)
+                 VALUES (?, ?, ?, ?, ?, ?)`
+      ).bind(cardId, userId, easeFactor, interval, repetitions, nextReviewStr).run();
+    }
+    return new Response(JSON.stringify({
+      success: true,
+      nextReview: nextReviewStr,
+      interval,
+      message: interval === 0 ? "\uB2E4\uC2DC \uD559\uC2B5\uD569\uB2C8\uB2E4" : `${interval}\uC77C \uD6C4 \uBCF5\uC2B5`
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Submit review error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestPost5, "onRequestPost");
+
 // api/cards/[deckId].js
-async function onRequestGet(context) {
+async function onRequestGet2(context) {
   const { env, params } = context;
   const userId = context.user.userId;
   const deckId = params.deckId;
@@ -323,8 +452,8 @@ async function onRequestGet(context) {
     });
   }
 }
-__name(onRequestGet, "onRequestGet");
-async function onRequestPost5(context) {
+__name(onRequestGet2, "onRequestGet");
+async function onRequestPost6(context) {
   const { request, env, params } = context;
   const userId = context.user.userId;
   const deckId = params.deckId;
@@ -370,10 +499,10 @@ async function onRequestPost5(context) {
     });
   }
 }
-__name(onRequestPost5, "onRequestPost");
+__name(onRequestPost6, "onRequestPost");
 
 // api/shared/[shareToken]/index.js
-async function onRequestGet2(context) {
+async function onRequestGet3(context) {
   const { env, params } = context;
   const shareToken = params.shareToken;
   try {
@@ -412,10 +541,10 @@ async function onRequestGet2(context) {
     });
   }
 }
-__name(onRequestGet2, "onRequestGet");
+__name(onRequestGet3, "onRequestGet");
 
 // api/decks/index.js
-async function onRequestGet3(context) {
+async function onRequestGet4(context) {
   const { env } = context;
   if (!context.user || !context.user.userId) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -444,8 +573,8 @@ async function onRequestGet3(context) {
     });
   }
 }
-__name(onRequestGet3, "onRequestGet");
-async function onRequestPost6(context) {
+__name(onRequestGet4, "onRequestGet");
+async function onRequestPost7(context) {
   const { request, env } = context;
   if (!context.user || !context.user.userId) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -481,7 +610,7 @@ async function onRequestPost6(context) {
     });
   }
 }
-__name(onRequestPost6, "onRequestPost");
+__name(onRequestPost7, "onRequestPost");
 
 // _middleware.js
 async function onRequest(context) {
@@ -577,6 +706,13 @@ var routes = [
     modules: [onRequestPost2]
   },
   {
+    routePath: "/api/study/:deckId/due",
+    mountPath: "/api/study/:deckId",
+    method: "GET",
+    middlewares: [],
+    modules: [onRequestGet]
+  },
+  {
     routePath: "/api/auth/login",
     mountPath: "/api/auth",
     method: "POST",
@@ -591,29 +727,29 @@ var routes = [
     modules: [onRequestPost4]
   },
   {
+    routePath: "/api/study/review",
+    mountPath: "/api/study",
+    method: "POST",
+    middlewares: [],
+    modules: [onRequestPost5]
+  },
+  {
     routePath: "/api/cards/:deckId",
     mountPath: "/api/cards",
     method: "GET",
     middlewares: [],
-    modules: [onRequestGet]
+    modules: [onRequestGet2]
   },
   {
     routePath: "/api/cards/:deckId",
     mountPath: "/api/cards",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost5]
+    modules: [onRequestPost6]
   },
   {
     routePath: "/api/shared/:shareToken",
     mountPath: "/api/shared/:shareToken",
-    method: "GET",
-    middlewares: [],
-    modules: [onRequestGet2]
-  },
-  {
-    routePath: "/api/decks",
-    mountPath: "/api/decks",
     method: "GET",
     middlewares: [],
     modules: [onRequestGet3]
@@ -621,9 +757,16 @@ var routes = [
   {
     routePath: "/api/decks",
     mountPath: "/api/decks",
+    method: "GET",
+    middlewares: [],
+    modules: [onRequestGet4]
+  },
+  {
+    routePath: "/api/decks",
+    mountPath: "/api/decks",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost6]
+    modules: [onRequestPost7]
   },
   {
     routePath: "/",
@@ -1121,7 +1264,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-WKHKli/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-QagjFb/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -1153,7 +1296,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-WKHKli/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-QagjFb/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -5,6 +5,7 @@ import { Login } from './components/Auth/Login';
 import { Register } from './components/Auth/Register';
 import DeckList from './components/DeckList';
 import DeckDetail from './components/DeckDetail';
+import StudySession from './components/StudySession';
 import Layout from './components/Layout';
 import { authAPI } from './utils/api';
 
@@ -58,8 +59,12 @@ class App extends Component {
                         {user ? <DeckList /> : <Redirect to="/login" />}
                     </Route>
 
-                    <Route path="/decks/:deckId">
+                    <Route exact path="/decks/:deckId">
                         {user ? <DeckDetail /> : <Redirect to="/login" />}
+                    </Route>
+
+                    <Route exact path="/study/:deckId">
+                        {user ? <StudySession /> : <Redirect to="/login" />}
                     </Route>
 
                     <Route exact path="/">

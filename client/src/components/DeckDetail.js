@@ -106,12 +106,20 @@ class DeckDetail extends Component {
                     </Link>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h2>{deck && deck.name}</h2>
-                        <button
-                            onClick={this.handleShareDeck}
-                            style={{ padding: '8px 16px', backgroundColor: '#17a2b8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                            📤 이 덱 공유하기
-                        </button>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button
+                                onClick={() => this.props.history.push(`/study/${deck.id}`)}
+                                style={{ padding: '8px 16px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                📚 학습 시작
+                            </button>
+                            <button
+                                onClick={this.handleShareDeck}
+                                style={{ padding: '8px 16px', backgroundColor: '#17a2b8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                📤 이 덱 공유하기
+                            </button>
+                        </div>
                     </div>
                 </div>
 
