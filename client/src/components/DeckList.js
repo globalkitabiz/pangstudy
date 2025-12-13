@@ -44,7 +44,9 @@ class DeckList extends Component {
     };
 
     handleLogout = () => {
-        authAPI.logout();
+        // localStorage 완전 초기화
+        localStorage.clear();
+        // 페이지 리로드하여 상태 초기화
         window.location.href = '/login';
     };
 
