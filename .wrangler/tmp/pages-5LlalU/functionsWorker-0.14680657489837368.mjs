@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-4XSVpY/checked-fetch.js
+// ../.wrangler/tmp/bundle-gkmLyU/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -245,6 +245,12 @@ __name(onRequestPost3, "onRequestPost");
 // api/decks/index.js
 async function onRequestGet2(context) {
   const { env } = context;
+  if (!context.user || !context.user.userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
   const userId = context.user.userId;
   try {
     const decks = await env.DB.prepare(
@@ -260,7 +266,7 @@ async function onRequestGet2(context) {
     });
   } catch (error) {
     console.error("Get decks error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ error: "Internal server error", details: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -269,6 +275,12 @@ async function onRequestGet2(context) {
 __name(onRequestGet2, "onRequestGet");
 async function onRequestPost4(context) {
   const { request, env } = context;
+  if (!context.user || !context.user.userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
   const userId = context.user.userId;
   try {
     const { name, description } = await request.json();
@@ -291,7 +303,7 @@ async function onRequestPost4(context) {
     });
   } catch (error) {
     console.error("Create deck error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ error: "Internal server error", details: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -890,7 +902,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-4XSVpY/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-gkmLyU/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -922,7 +934,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-4XSVpY/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-gkmLyU/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

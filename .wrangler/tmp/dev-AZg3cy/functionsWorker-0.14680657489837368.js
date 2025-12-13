@@ -274,6 +274,12 @@ __name(onRequestPost3, "onRequestPost3");
 __name2(onRequestPost3, "onRequestPost");
 async function onRequestGet2(context) {
   const { env } = context;
+  if (!context.user || !context.user.userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
   const userId = context.user.userId;
   try {
     const decks = await env.DB.prepare(
@@ -289,7 +295,7 @@ async function onRequestGet2(context) {
     });
   } catch (error) {
     console.error("Get decks error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ error: "Internal server error", details: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -299,6 +305,12 @@ __name(onRequestGet2, "onRequestGet2");
 __name2(onRequestGet2, "onRequestGet");
 async function onRequestPost4(context) {
   const { request, env } = context;
+  if (!context.user || !context.user.userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
   const userId = context.user.userId;
   try {
     const { name, description } = await request.json();
@@ -321,7 +333,7 @@ async function onRequestPost4(context) {
     });
   } catch (error) {
     console.error("Create deck error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ error: "Internal server error", details: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });

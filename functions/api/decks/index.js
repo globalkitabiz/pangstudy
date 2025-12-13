@@ -4,6 +4,15 @@
 
 export async function onRequestGet(context) {
     const { env } = context;
+
+    // 사용자 인증 확인
+    if (!context.user || !context.user.userId) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
     const userId = context.user.userId;
 
     try {
@@ -21,7 +30,7 @@ export async function onRequestGet(context) {
         });
     } catch (error) {
         console.error('Get decks error:', error);
-        return new Response(JSON.stringify({ error: 'Internal server error' }), {
+        return new Response(JSON.stringify({ error: 'Internal server error', details: error.message }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
@@ -30,6 +39,15 @@ export async function onRequestGet(context) {
 
 export async function onRequestPost(context) {
     const { request, env } = context;
+
+    // 사용자 인증 확인
+    if (!context.user || !context.user.userId) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
     const userId = context.user.userId;
 
     try {
@@ -57,7 +75,7 @@ export async function onRequestPost(context) {
         });
     } catch (error) {
         console.error('Create deck error:', error);
-        return new Response(JSON.stringify({ error: 'Internal server error' }), {
+        return new Response(JSON.stringify({ error: 'Internal server error', details: error.message }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
