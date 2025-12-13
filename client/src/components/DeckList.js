@@ -1,9 +1,7 @@
 // 덱 목록 컴포넌트
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { deckAPI } from '../utils/api';
-import { authAPI } from '../utils/api';
-import { Button, Card, ListGroup, Alert } from 'react-bootstrap';
+import { deckAPI, authAPI } from '../utils/api';
 
 class DeckList extends Component {
     constructor(props) {
@@ -38,10 +36,7 @@ class DeckList extends Component {
 
         try {
             await deckAPI.create(newDeckName, '');
-            this.setState({
-                newDeckName: '',
-                showCreateForm: false
-            });
+            this.setState({ newDeckName: '', showCreateForm: false });
             this.loadDecks();
         } catch (err) {
             this.setState({ error: err.message });
@@ -57,79 +52,97 @@ class DeckList extends Component {
         const { decks, loading, error, newDeckName, showCreateForm } = this.state;
 
         if (loading) {
-            return <div className="text-center mt-5">로딩 중...</div>;
+            return <div style={{ textAlign: 'center', marginTop: '50px' }}>로딩 중...</div>;
         }
 
         return (
-            <div className="container mt-4">
-                <div className="d-flex justify-content-between align-items-center mb-4">
+            <div style={{ maxWidth: '800px', margin: '20px auto', padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <h2>내 덱</h2>
-                    <Button variant="danger" onClick={this.handleLogout}>로그아웃</Button>
+                    <button
+                        onClick={this.handleLogout}
+                        style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                        로그아웃
+                    </button>
                 </div>
 
-                {error && <Alert variant="danger">{error}</Alert>}
+                {error && (
+                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb', borderRadius: '4px' }}>
+                        {error}
+                    </div>
+                )}
 
-                <div className="mb-3">
+                <div style={{ marginBottom: '20px' }}>
                     {!showCreateForm ? (
-                        <Button
-                            variant="primary"
+                        <button
                             onClick={() => this.setState({ showCreateForm: true })}
+                            style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                         >
                             + 새 덱 만들기
-                        </Button>
+                        </button>
                     ) : (
-                        <Card>
-                            <Card.Body>
-                                <form onSubmit={this.handleCreateDeck}>
-                                    <div className="mb-3">
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="덱 이름"
-                                            value={newDeckName}
-                                            onChange={(e) => this.setState({ newDeckName: e.target.value })}
-                                            autoFocus
-                                        />
-                                    </div>
-                                    <Button type="submit" variant="primary" className="me-2">
-                                        만들기
-                                    </Button>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => this.setState({ showCreateForm: false })}
-                                    >
-                                        취소
-                                    </Button>
-                                </form>
-                            </Card.Body>
-                        </Card>
+                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                            <form onSubmit={this.handleCreateDeck}>
+                                <input
+                                    type="text"
+                                    placeholder="덱 이름"
+                                    value={newDeckName}
+                                    onChange={(e) => this.setState({ newDeckName: e.target.value })}
+                                    autoFocus
+                                    style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+                                />
+                                <button
+                                    type="submit"
+                                    style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    만들기
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => this.setState({ showCreateForm: false })}
+                                    style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    취소
+                                </button>
+                            </form>
+                        </div>
                     )}
                 </div>
 
                 {decks.length === 0 ? (
-                    <Alert variant="info">
+                    <div style={{ padding: '15px', backgroundColor: '#d1ecf1', color: '#0c5460', border: '1px solid #bee5eb', borderRadius: '4px' }}>
                         덱이 없습니다. 새 덱을 만들어보세요!
-                    </Alert>
+                    </div>
                 ) : (
-                    <ListGroup>
+                    <div>
                         {decks.map(deck => (
-                            <ListGroup.Item key={deck.id}>
-                                <Link to={`/decks/${deck.id}`} className="text-decoration-none">
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h5 className="mb-1">{deck.name}</h5>
-                                            {deck.description && (
-                                                <small className="text-muted">{deck.description}</small>
-                                            )}
-                                        </div>
-                                        <div className="text-muted">
-                                            <small>{deck.card_count || 0} 카드</small>
-                                        </div>
+                            <Link
+                                key={deck.id}
+                                to={`/decks/${deck.id}`}
+                                style={{
+                                    display: 'block',
+                                    padding: '15px',
+                                    marginBottom: '10px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '4px',
+                                    textDecoration: 'none',
+                                    color: 'inherit',
+                                    backgroundColor: '#fff'
+                                }}
+                            >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <h5 style={{ margin: '0 0 5px 0' }}>{deck.name}</h5>
+                                        {deck.description && <small style={{ color: '#6c757d' }}>{deck.description}</small>}
                                     </div>
-                                </Link>
-                            </ListGroup.Item>
+                                    <div style={{ color: '#6c757d' }}>
+                                        <small>{deck.card_count || 0} 카드</small>
+                                    </div>
+                                </div>
+                            </Link>
                         ))}
-                    </ListGroup>
+                    </div>
                 )}
             </div>
         );

@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { cardAPI } from '../utils/api';
-import { Button, Card, ListGroup, Alert, Form } from 'react-bootstrap';
 
 class DeckDetail extends Component {
     constructor(props) {
@@ -59,94 +58,112 @@ class DeckDetail extends Component {
         const { deck, cards, loading, error, showAddForm, newCard } = this.state;
 
         if (loading) {
-            return <div className="text-center mt-5">로딩 중...</div>;
+            return <div style={{ textAlign: 'center', marginTop: '50px' }}>로딩 중...</div>;
         }
 
         return (
-            <div className="container mt-4">
-                <div className="mb-4">
-                    <Link to="/decks" className="btn btn-secondary mb-3">← 덱 목록으로</Link>
+            <div style={{ maxWidth: '800px', margin: '20px auto', padding: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
+                    <Link
+                        to="/decks"
+                        style={{
+                            display: 'inline-block',
+                            padding: '8px 16px',
+                            marginBottom: '15px',
+                            backgroundColor: '#6c757d',
+                            color: '#fff',
+                            textDecoration: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        ← 덱 목록으로
+                    </Link>
                     <h2>{deck && deck.name}</h2>
                 </div>
 
-                {error && <Alert variant="danger">{error}</Alert>}
+                {error && (
+                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb', borderRadius: '4px' }}>
+                        {error}
+                    </div>
+                )}
 
-                <div className="mb-3">
+                <div style={{ marginBottom: '20px' }}>
                     {!showAddForm ? (
-                        <Button
-                            variant="primary"
+                        <button
                             onClick={() => this.setState({ showAddForm: true })}
+                            style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                         >
                             + 카드 추가
-                        </Button>
+                        </button>
                     ) : (
-                        <Card>
-                            <Card.Body>
-                                <h5>새 카드 추가</h5>
-                                <Form onSubmit={this.handleAddCard}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>앞면 (질문)</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            rows={3}
-                                            placeholder="예: Hello"
-                                            value={newCard.front}
-                                            onChange={(e) => this.setState({
-                                                newCard: { ...newCard, front: e.target.value }
-                                            })}
-                                            autoFocus
-                                        />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>뒷면 (답변)</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            rows={3}
-                                            placeholder="예: 안녕하세요"
-                                            value={newCard.back}
-                                            onChange={(e) => this.setState({
-                                                newCard: { ...newCard, back: e.target.value }
-                                            })}
-                                        />
-                                    </Form.Group>
-                                    <Button type="submit" variant="primary" className="me-2">
-                                        추가
-                                    </Button>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => this.setState({ showAddForm: false })}
-                                    >
-                                        취소
-                                    </Button>
-                                </Form>
-                            </Card.Body>
-                        </Card>
+                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                            <h5>새 카드 추가</h5>
+                            <form onSubmit={this.handleAddCard}>
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>앞면 (질문)</label>
+                                    <textarea
+                                        rows={3}
+                                        placeholder="예: Hello"
+                                        value={newCard.front}
+                                        onChange={(e) => this.setState({ newCard: { ...newCard, front: e.target.value } })}
+                                        autoFocus
+                                        style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>뒷면 (답변)</label>
+                                    <textarea
+                                        rows={3}
+                                        placeholder="예: 안녕하세요"
+                                        value={newCard.back}
+                                        onChange={(e) => this.setState({ newCard: { ...newCard, back: e.target.value } })}
+                                        style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    추가
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => this.setState({ showAddForm: false })}
+                                    style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    취소
+                                </button>
+                            </form>
+                        </div>
                     )}
                 </div>
 
-                <h4 className="mb-3">카드 목록 ({cards.length})</h4>
+                <h4 style={{ marginBottom: '15px' }}>카드 목록 ({cards.length})</h4>
 
                 {cards.length === 0 ? (
-                    <Alert variant="info">
+                    <div style={{ padding: '15px', backgroundColor: '#d1ecf1', color: '#0c5460', border: '1px solid #bee5eb', borderRadius: '4px' }}>
                         카드가 없습니다. 카드를 추가해보세요!
-                    </Alert>
+                    </div>
                 ) : (
-                    <ListGroup>
+                    <div>
                         {cards.map(card => (
-                            <ListGroup.Item key={card.id}>
-                                <div className="row">
-                                    <div className="col-md-6">
+                            <div
+                                key={card.id}
+                                style={{ padding: '15px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#fff' }}
+                            >
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                    <div>
                                         <strong>앞면:</strong>
-                                        <p className="mb-0">{card.front}</p>
+                                        <p style={{ margin: '5px 0 0 0' }}>{card.front}</p>
                                     </div>
-                                    <div className="col-md-6">
+                                    <div>
                                         <strong>뒷면:</strong>
-                                        <p className="mb-0">{card.back}</p>
+                                        <p style={{ margin: '5px 0 0 0' }}>{card.back}</p>
                                     </div>
                                 </div>
-                            </ListGroup.Item>
+                            </div>
                         ))}
-                    </ListGroup>
+                    </div>
                 )}
             </div>
         );
