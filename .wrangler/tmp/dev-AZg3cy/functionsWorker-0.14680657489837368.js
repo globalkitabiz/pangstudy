@@ -637,6 +637,54 @@ async function onRequestPost7(context) {
 }
 __name(onRequestPost7, "onRequestPost7");
 __name2(onRequestPost7, "onRequestPost");
+async function onRequestGet5(context) {
+  const { env } = context;
+  if (!context.user || !context.user.userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  const userId = context.user.userId;
+  try {
+    const deckCount = await env.DB.prepare(
+      "SELECT COUNT(*) as count FROM decks WHERE user_id = ?"
+    ).bind(userId).first();
+    const cardCount = await env.DB.prepare(
+      `SELECT COUNT(*) as count FROM cards c
+             JOIN decks d ON c.deck_id = d.id
+             WHERE d.user_id = ?`
+    ).bind(userId).first();
+    const todayReviews = await env.DB.prepare(
+      `SELECT COUNT(*) as count FROM reviews
+             WHERE user_id = ? AND DATE(reviewed_at) = DATE('now')`
+    ).bind(userId).first();
+    const dueCards = await env.DB.prepare(
+      `SELECT COUNT(*) as count FROM cards c
+             JOIN decks d ON c.deck_id = d.id
+             LEFT JOIN reviews r ON c.id = r.card_id AND r.user_id = ?
+             WHERE d.user_id = ? 
+             AND (r.next_review IS NULL OR r.next_review <= DATETIME('now'))`
+    ).bind(userId, userId).first();
+    return new Response(JSON.stringify({
+      deckCount: deckCount.count,
+      cardCount: cardCount.count,
+      todayReviews: todayReviews.count,
+      dueCards: dueCards.count
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Get stats error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestGet5, "onRequestGet5");
+__name2(onRequestGet5, "onRequestGet");
 async function onRequest(context) {
   const { request, next, env } = context;
   const publicPaths = [
@@ -791,6 +839,13 @@ var routes = [
     method: "POST",
     middlewares: [],
     modules: [onRequestPost7]
+  },
+  {
+    routePath: "/api/stats",
+    mountPath: "/api/stats",
+    method: "GET",
+    middlewares: [],
+    modules: [onRequestGet5]
   },
   {
     routePath: "/",

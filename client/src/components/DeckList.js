@@ -1,7 +1,9 @@
+```javascript
 // 덱 목록 컴포넌트
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { deckAPI, shareAPI } from '../utils/api';
+import Statistics from './Statistics';
 
 class DeckList extends Component {
     constructor(props) {
@@ -102,6 +104,8 @@ class DeckList extends Component {
                     </div>
                 )}
 
+                <Statistics />
+
                 <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
                     {!showCreateForm && !showImportForm && (
                         <>
@@ -193,7 +197,7 @@ class DeckList extends Component {
                         {decks.map(deck => (
                             <Link
                                 key={deck.id}
-                                to={`/decks/${deck.id}`}
+                                to={`/ decks / ${ deck.id } `}
                                 style={{
                                     display: 'block',
                                     padding: '15px',

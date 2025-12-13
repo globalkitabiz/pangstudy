@@ -9,6 +9,7 @@ import { onRequestPost as __api_cards__deckId__js_onRequestPost } from "C:\\win_
 import { onRequestGet as __api_shared__shareToken__index_js_onRequestGet } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\shared\\[shareToken]\\index.js"
 import { onRequestGet as __api_decks_index_js_onRequestGet } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\decks\\index.js"
 import { onRequestPost as __api_decks_index_js_onRequestPost } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\decks\\index.js"
+import { onRequestGet as __api_stats_index_js_onRequestGet } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\stats\\index.js"
 import { onRequest as ___middleware_js_onRequest } from "C:\\win_asp_LMs\\pangstudy\\functions\\_middleware.js"
 
 export const routes = [
@@ -88,6 +89,13 @@ export const routes = [
       method: "POST",
       middlewares: [],
       modules: [__api_decks_index_js_onRequestPost],
+    },
+  {
+      routePath: "/api/stats",
+      mountPath: "/api/stats",
+      method: "GET",
+      middlewares: [],
+      modules: [__api_stats_index_js_onRequestGet],
     },
   {
       routePath: "/",

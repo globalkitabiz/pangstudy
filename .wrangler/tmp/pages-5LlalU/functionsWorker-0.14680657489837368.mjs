@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-QagjFb/checked-fetch.js
+// ../.wrangler/tmp/bundle-UrlS1z/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -612,6 +612,55 @@ async function onRequestPost7(context) {
 }
 __name(onRequestPost7, "onRequestPost");
 
+// api/stats/index.js
+async function onRequestGet5(context) {
+  const { env } = context;
+  if (!context.user || !context.user.userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  const userId = context.user.userId;
+  try {
+    const deckCount = await env.DB.prepare(
+      "SELECT COUNT(*) as count FROM decks WHERE user_id = ?"
+    ).bind(userId).first();
+    const cardCount = await env.DB.prepare(
+      `SELECT COUNT(*) as count FROM cards c
+             JOIN decks d ON c.deck_id = d.id
+             WHERE d.user_id = ?`
+    ).bind(userId).first();
+    const todayReviews = await env.DB.prepare(
+      `SELECT COUNT(*) as count FROM reviews
+             WHERE user_id = ? AND DATE(reviewed_at) = DATE('now')`
+    ).bind(userId).first();
+    const dueCards = await env.DB.prepare(
+      `SELECT COUNT(*) as count FROM cards c
+             JOIN decks d ON c.deck_id = d.id
+             LEFT JOIN reviews r ON c.id = r.card_id AND r.user_id = ?
+             WHERE d.user_id = ? 
+             AND (r.next_review IS NULL OR r.next_review <= DATETIME('now'))`
+    ).bind(userId, userId).first();
+    return new Response(JSON.stringify({
+      deckCount: deckCount.count,
+      cardCount: cardCount.count,
+      todayReviews: todayReviews.count,
+      dueCards: dueCards.count
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Get stats error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestGet5, "onRequestGet");
+
 // _middleware.js
 async function onRequest(context) {
   const { request, next, env } = context;
@@ -767,6 +816,13 @@ var routes = [
     method: "POST",
     middlewares: [],
     modules: [onRequestPost7]
+  },
+  {
+    routePath: "/api/stats",
+    mountPath: "/api/stats",
+    method: "GET",
+    middlewares: [],
+    modules: [onRequestGet5]
   },
   {
     routePath: "/",
@@ -1264,7 +1320,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-QagjFb/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-UrlS1z/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -1296,7 +1352,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-QagjFb/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-UrlS1z/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
