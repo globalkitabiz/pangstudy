@@ -18,7 +18,10 @@ class Login extends Component {
         this.setState({ error: '', loading: true });
 
         try {
-            await authAPI.login(this.state.email, this.state.password);
+            const response = await authAPI.login(this.state.email, this.state.password);
+            // 토큰과 사용자 정보 저장
+            authAPI.saveToken(response.token, response.user);
+
             if (this.props.onLoginSuccess) {
                 this.props.onLoginSuccess();
             }

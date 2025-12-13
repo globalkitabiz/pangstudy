@@ -19,7 +19,10 @@ class Register extends Component {
         this.setState({ error: '', loading: true });
 
         try {
-            await authAPI.register(this.state.email, this.state.password, this.state.username);
+            const response = await authAPI.register(this.state.email, this.state.password, this.state.username);
+            // 토큰과 사용자 정보 저장
+            authAPI.saveToken(response.token, response.user);
+
             if (this.props.onRegisterSuccess) {
                 this.props.onRegisterSuccess();
             }
