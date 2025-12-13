@@ -1,13 +1,30 @@
+import { onRequestPost as __api_decks__deckId__share_js_onRequestPost } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\decks\\[deckId]\\share.js"
+import { onRequestPost as __api_shared__shareToken__import_js_onRequestPost } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\shared\\[shareToken]\\import.js"
 import { onRequestPost as __api_auth_login_js_onRequestPost } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\auth\\login.js"
 import { onRequestPost as __api_auth_register_js_onRequestPost } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\auth\\register.js"
 import { onRequestGet as __api_cards__deckId__js_onRequestGet } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\cards\\[deckId].js"
 import { onRequestPost as __api_cards__deckId__js_onRequestPost } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\cards\\[deckId].js"
+import { onRequestGet as __api_shared__shareToken__index_js_onRequestGet } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\shared\\[shareToken]\\index.js"
 import { onRequestGet as __api_decks_index_js_onRequestGet } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\decks\\index.js"
 import { onRequestPost as __api_decks_index_js_onRequestPost } from "C:\\win_asp_LMs\\pangstudy\\functions\\api\\decks\\index.js"
 import { onRequest as ___middleware_js_onRequest } from "C:\\win_asp_LMs\\pangstudy\\functions\\_middleware.js"
 
 export const routes = [
     {
+      routePath: "/api/decks/:deckId/share",
+      mountPath: "/api/decks/:deckId",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_decks__deckId__share_js_onRequestPost],
+    },
+  {
+      routePath: "/api/shared/:shareToken/import",
+      mountPath: "/api/shared/:shareToken",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_shared__shareToken__import_js_onRequestPost],
+    },
+  {
       routePath: "/api/auth/login",
       mountPath: "/api/auth",
       method: "POST",
@@ -34,6 +51,13 @@ export const routes = [
       method: "POST",
       middlewares: [],
       modules: [__api_cards__deckId__js_onRequestPost],
+    },
+  {
+      routePath: "/api/shared/:shareToken",
+      mountPath: "/api/shared/:shareToken",
+      method: "GET",
+      middlewares: [],
+      modules: [__api_shared__shareToken__index_js_onRequestGet],
     },
   {
       routePath: "/api/decks",

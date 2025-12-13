@@ -1,7 +1,7 @@
 // 덱 상세 및 카드 관리 컴포넌트
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { cardAPI } from '../utils/api';
+import { cardAPI, shareAPI } from '../utils/api';
 
 class DeckDetail extends Component {
     constructor(props) {
@@ -11,7 +11,10 @@ class DeckDetail extends Component {
             cards: [],
             loading: true,
             error: '',
+            success: '',
             showAddForm: false,
+            showShareModal: false,
+            shareUrl: '',
             newCard: { front: '', back: '' }
         };
     }
@@ -46,16 +49,39 @@ class DeckDetail extends Component {
             await cardAPI.create(deckId, newCard.front, newCard.back);
             this.setState({
                 newCard: { front: '', back: '' },
-                showAddForm: false
+                showAddForm: false,
+                success: '카드가 추가되었습니다!'
             });
             this.loadDeckAndCards();
+            setTimeout(() => this.setState({ success: '' }), 3000);
         } catch (err) {
             this.setState({ error: err.message });
         }
     };
 
+    handleShareDeck = async () => {
+        const { deckId } = this.props.match.params;
+        try {
+            const result = await shareAPI.shareDeck(deckId);
+            this.setState({
+                showShareModal: true,
+                shareUrl: result.shareUrl
+            });
+        } catch (err) {
+            this.setState({ error: err.message });
+        }
+    };
+
+    handleCopyShareLink = () => {
+        const { shareUrl } = this.state;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            this.setState({ success: '공유 링크가 복사되었습니다!' });
+            setTimeout(() => this.setState({ success: '' }), 3000);
+        });
+    };
+
     render() {
-        const { deck, cards, loading, error, showAddForm, newCard } = this.state;
+        const { deck, cards, loading, error, success, showAddForm, showShareModal, shareUrl, newCard } = this.state;
 
         if (loading) {
             return <div style={{ textAlign: 'center', marginTop: '50px' }}>로딩 중...</div>;
@@ -78,12 +104,76 @@ class DeckDetail extends Component {
                     >
                         ← 덱 목록으로
                     </Link>
-                    <h2>{deck && deck.name}</h2>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h2>{deck && deck.name}</h2>
+                        <button
+                            onClick={this.handleShareDeck}
+                            style={{ padding: '8px 16px', backgroundColor: '#17a2b8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                            📤 이 덱 공유하기
+                        </button>
+                    </div>
                 </div>
 
                 {error && (
                     <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb', borderRadius: '4px' }}>
                         {error}
+                    </div>
+                )}
+
+                {success && (
+                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#d4edda', color: '#155724', border: '1px solid #c3e6cb', borderRadius: '4px' }}>
+                        {success}
+                    </div>
+                )}
+
+                {showShareModal && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000
+                    }}>
+                        <div style={{
+                            backgroundColor: '#fff',
+                            padding: '30px',
+                            borderRadius: '8px',
+                            maxWidth: '500px',
+                            width: '90%'
+                        }}>
+                            <h3>덱 공유 링크</h3>
+                            <p>이 링크를 공유하면 다른 사람이 이 덱을 가져갈 수 있습니다:</p>
+                            <div style={{
+                                padding: '10px',
+                                backgroundColor: '#f8f9fa',
+                                border: '1px solid #ddd',
+                                borderRadius: '4px',
+                                marginBottom: '15px',
+                                wordBreak: 'break-all'
+                            }}>
+                                {shareUrl}
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button
+                                    onClick={this.handleCopyShareLink}
+                                    style={{ flex: 1, padding: '10px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    📋 링크 복사
+                                </button>
+                                <button
+                                    onClick={() => this.setState({ showShareModal: false })}
+                                    style={{ flex: 1, padding: '10px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    닫기
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
 

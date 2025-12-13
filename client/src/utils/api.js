@@ -105,3 +105,19 @@ export const studyAPI = {
             body: JSON.stringify({ cardId, difficulty }),
         }),
 };
+
+// 공유 API
+export const shareAPI = {
+    shareDeck: (deckId) =>
+        apiRequest(`/api/decks/${deckId}/share`, {
+            method: 'POST',
+        }),
+
+    getSharedDeck: (shareToken) =>
+        apiRequest(`/api/shared/${shareToken}`),
+
+    importSharedDeck: (shareToken) =>
+        apiRequest(`/api/shared/${shareToken}/import`, {
+            method: 'POST',
+        }),
+};

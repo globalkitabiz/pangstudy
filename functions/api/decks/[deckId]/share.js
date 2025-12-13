@@ -1,0 +1,68 @@
+// 덱 공유 API
+export async function onRequestPost(context) {
+    const { env, params } = context;
+    const deckId = params.deckId;
+
+    // 사용자 인증 확인
+    if (!context.user || !context.user.userId) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    const userId = context.user.userId;
+
+    try {
+        // 덱 소유권 확인
+        const deck = await env.DB.prepare(
+            'SELECT id, name FROM decks WHERE id = ? AND user_id = ?'
+        ).bind(deckId, userId).first();
+
+        if (!deck) {
+            return new Response(JSON.stringify({ error: 'Deck not found or access denied' }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // 기존 공유 토큰 확인
+        const existing = await env.DB.prepare(
+            'SELECT share_token FROM shared_decks WHERE deck_id = ?'
+        ).bind(deckId).first();
+
+        if (existing) {
+            return new Response(JSON.stringify({
+                success: true,
+                shareToken: existing.share_token,
+                shareUrl: `${new URL(context.request.url).origin}/shared/${existing.share_token}`
+            }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // 새 공유 토큰 생성 (UUID)
+        const shareToken = crypto.randomUUID();
+
+        await env.DB.prepare(
+            'INSERT INTO shared_decks (share_token, deck_id) VALUES (?, ?)'
+        ).bind(shareToken, deckId).run();
+
+        return new Response(JSON.stringify({
+            success: true,
+            shareToken,
+            shareUrl: `${new URL(context.request.url).origin}/shared/${shareToken}`
+        }), {
+            status: 201,
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+    } catch (error) {
+        console.error('Share deck error:', error);
+        return new Response(JSON.stringify({ error: 'Internal server error' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+}

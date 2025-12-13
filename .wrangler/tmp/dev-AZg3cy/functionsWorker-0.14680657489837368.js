@@ -56,6 +56,114 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
   }
 });
 async function onRequestPost(context) {
+  const { env, params } = context;
+  const deckId = params.deckId;
+  if (!context.user || !context.user.userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  const userId = context.user.userId;
+  try {
+    const deck = await env.DB.prepare(
+      "SELECT id, name FROM decks WHERE id = ? AND user_id = ?"
+    ).bind(deckId, userId).first();
+    if (!deck) {
+      return new Response(JSON.stringify({ error: "Deck not found or access denied" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const existing = await env.DB.prepare(
+      "SELECT share_token FROM shared_decks WHERE deck_id = ?"
+    ).bind(deckId).first();
+    if (existing) {
+      return new Response(JSON.stringify({
+        success: true,
+        shareToken: existing.share_token,
+        shareUrl: `${new URL(context.request.url).origin}/shared/${existing.share_token}`
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const shareToken = crypto.randomUUID();
+    await env.DB.prepare(
+      "INSERT INTO shared_decks (share_token, deck_id) VALUES (?, ?)"
+    ).bind(shareToken, deckId).run();
+    return new Response(JSON.stringify({
+      success: true,
+      shareToken,
+      shareUrl: `${new URL(context.request.url).origin}/shared/${shareToken}`
+    }), {
+      status: 201,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Share deck error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestPost, "onRequestPost");
+__name2(onRequestPost, "onRequestPost");
+async function onRequestPost2(context) {
+  const { env, params } = context;
+  const shareToken = params.shareToken;
+  if (!context.user || !context.user.userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  const userId = context.user.userId;
+  try {
+    const shared = await env.DB.prepare(
+      `SELECT sd.share_token, d.id, d.name, d.description
+             FROM shared_decks sd
+             JOIN decks d ON sd.deck_id = d.id
+             WHERE sd.share_token = ?`
+    ).bind(shareToken).first();
+    if (!shared) {
+      return new Response(JSON.stringify({ error: "Shared deck not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const newDeckResult = await env.DB.prepare(
+      "INSERT INTO decks (user_id, name, description) VALUES (?, ?, ?)"
+    ).bind(userId, `${shared.name} (\uACF5\uC720\uB428)`, shared.description).run();
+    const newDeckId = newDeckResult.meta.last_row_id;
+    const cards = await env.DB.prepare(
+      "SELECT front, back, media_front, media_back FROM cards WHERE deck_id = ?"
+    ).bind(shared.id).all();
+    for (const card of cards.results) {
+      await env.DB.prepare(
+        "INSERT INTO cards (deck_id, front, back, media_front, media_back) VALUES (?, ?, ?, ?, ?)"
+      ).bind(newDeckId, card.front, card.back, card.media_front, card.media_back).run();
+    }
+    return new Response(JSON.stringify({
+      success: true,
+      deckId: newDeckId,
+      message: `\uB371 "${shared.name}"\uC744(\uB97C) \uAC00\uC838\uC654\uC2B5\uB2C8\uB2E4. (${cards.results.length}\uAC1C \uCE74\uB4DC)`
+    }), {
+      status: 201,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Import shared deck error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestPost2, "onRequestPost2");
+__name2(onRequestPost2, "onRequestPost");
+async function onRequestPost3(context) {
   const { request, env } = context;
   try {
     const { email, password } = await request.json();
@@ -105,8 +213,8 @@ async function onRequestPost(context) {
     });
   }
 }
-__name(onRequestPost, "onRequestPost");
-__name2(onRequestPost, "onRequestPost");
+__name(onRequestPost3, "onRequestPost3");
+__name2(onRequestPost3, "onRequestPost");
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -139,7 +247,7 @@ async function createJWT(payload, secret) {
 }
 __name(createJWT, "createJWT");
 __name2(createJWT, "createJWT");
-async function onRequestPost2(context) {
+async function onRequestPost4(context) {
   const { request, env } = context;
   try {
     const { email, password, username } = await request.json();
@@ -180,8 +288,8 @@ async function onRequestPost2(context) {
     });
   }
 }
-__name(onRequestPost2, "onRequestPost2");
-__name2(onRequestPost2, "onRequestPost");
+__name(onRequestPost4, "onRequestPost4");
+__name2(onRequestPost4, "onRequestPost");
 async function hashPassword2(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -244,7 +352,7 @@ async function onRequestGet(context) {
 }
 __name(onRequestGet, "onRequestGet");
 __name2(onRequestGet, "onRequestGet");
-async function onRequestPost3(context) {
+async function onRequestPost5(context) {
   const { request, env, params } = context;
   const userId = context.user.userId;
   const deckId = params.deckId;
@@ -290,9 +398,50 @@ async function onRequestPost3(context) {
     });
   }
 }
-__name(onRequestPost3, "onRequestPost3");
-__name2(onRequestPost3, "onRequestPost");
+__name(onRequestPost5, "onRequestPost5");
+__name2(onRequestPost5, "onRequestPost");
 async function onRequestGet2(context) {
+  const { env, params } = context;
+  const shareToken = params.shareToken;
+  try {
+    const shared = await env.DB.prepare(
+      `SELECT sd.share_token, d.id, d.name, d.description, d.created_at
+             FROM shared_decks sd
+             JOIN decks d ON sd.deck_id = d.id
+             WHERE sd.share_token = ?`
+    ).bind(shareToken).first();
+    if (!shared) {
+      return new Response(JSON.stringify({ error: "Shared deck not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const cards = await env.DB.prepare(
+      "SELECT id, front, back FROM cards WHERE deck_id = ?"
+    ).bind(shared.id).all();
+    return new Response(JSON.stringify({
+      deck: {
+        id: shared.id,
+        name: shared.name,
+        description: shared.description,
+        cardCount: cards.results.length
+      },
+      cards: cards.results
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Get shared deck error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestGet2, "onRequestGet2");
+__name2(onRequestGet2, "onRequestGet");
+async function onRequestGet3(context) {
   const { env } = context;
   if (!context.user || !context.user.userId) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -321,9 +470,9 @@ async function onRequestGet2(context) {
     });
   }
 }
-__name(onRequestGet2, "onRequestGet2");
-__name2(onRequestGet2, "onRequestGet");
-async function onRequestPost4(context) {
+__name(onRequestGet3, "onRequestGet3");
+__name2(onRequestGet3, "onRequestGet");
+async function onRequestPost6(context) {
   const { request, env } = context;
   if (!context.user || !context.user.userId) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -359,8 +508,8 @@ async function onRequestPost4(context) {
     });
   }
 }
-__name(onRequestPost4, "onRequestPost4");
-__name2(onRequestPost4, "onRequestPost");
+__name(onRequestPost6, "onRequestPost6");
+__name2(onRequestPost6, "onRequestPost");
 async function onRequest(context) {
   const { request, next, env } = context;
   const publicPaths = [
@@ -440,18 +589,32 @@ __name(verifyJWT, "verifyJWT");
 __name2(verifyJWT, "verifyJWT");
 var routes = [
   {
+    routePath: "/api/decks/:deckId/share",
+    mountPath: "/api/decks/:deckId",
+    method: "POST",
+    middlewares: [],
+    modules: [onRequestPost]
+  },
+  {
+    routePath: "/api/shared/:shareToken/import",
+    mountPath: "/api/shared/:shareToken",
+    method: "POST",
+    middlewares: [],
+    modules: [onRequestPost2]
+  },
+  {
     routePath: "/api/auth/login",
     mountPath: "/api/auth",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost]
+    modules: [onRequestPost3]
   },
   {
     routePath: "/api/auth/register",
     mountPath: "/api/auth",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost2]
+    modules: [onRequestPost4]
   },
   {
     routePath: "/api/cards/:deckId",
@@ -465,11 +628,11 @@ var routes = [
     mountPath: "/api/cards",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost3]
+    modules: [onRequestPost5]
   },
   {
-    routePath: "/api/decks",
-    mountPath: "/api/decks",
+    routePath: "/api/shared/:shareToken",
+    mountPath: "/api/shared/:shareToken",
     method: "GET",
     middlewares: [],
     modules: [onRequestGet2]
@@ -477,9 +640,16 @@ var routes = [
   {
     routePath: "/api/decks",
     mountPath: "/api/decks",
+    method: "GET",
+    middlewares: [],
+    modules: [onRequestGet3]
+  },
+  {
+    routePath: "/api/decks",
+    mountPath: "/api/decks",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost4]
+    modules: [onRequestPost6]
   },
   {
     routePath: "/",

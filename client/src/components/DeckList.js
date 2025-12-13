@@ -1,7 +1,7 @@
 // 덱 목록 컴포넌트
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { deckAPI, authAPI } from '../utils/api';
+import { deckAPI, shareAPI } from '../utils/api';
 
 class DeckList extends Component {
     constructor(props) {
@@ -10,8 +10,11 @@ class DeckList extends Component {
             decks: [],
             loading: true,
             error: '',
+            success: '',
             newDeckName: '',
-            showCreateForm: false
+            showCreateForm: false,
+            showImportForm: false,
+            shareToken: ''
         };
     }
 
@@ -36,22 +39,40 @@ class DeckList extends Component {
 
         try {
             await deckAPI.create(newDeckName, '');
-            this.setState({ newDeckName: '', showCreateForm: false });
+            this.setState({ newDeckName: '', showCreateForm: false, success: '덱이 생성되었습니다!' });
             this.loadDecks();
+            setTimeout(() => this.setState({ success: '' }), 3000);
+        } catch (err) {
+            this.setState({ error: err.message });
+        }
+    };
+
+    handleImportDeck = async (e) => {
+        e.preventDefault();
+        const { shareToken } = this.state;
+        if (!shareToken.trim()) return;
+
+        try {
+            const result = await shareAPI.importSharedDeck(shareToken);
+            this.setState({
+                shareToken: '',
+                showImportForm: false,
+                success: result.message || '덱을 가져왔습니다!'
+            });
+            this.loadDecks();
+            setTimeout(() => this.setState({ success: '' }), 3000);
         } catch (err) {
             this.setState({ error: err.message });
         }
     };
 
     handleLogout = () => {
-        // localStorage 완전 초기화
         localStorage.clear();
-        // 페이지 리로드하여 상태 초기화
         window.location.href = '/login';
     };
 
     render() {
-        const { decks, loading, error, newDeckName, showCreateForm } = this.state;
+        const { decks, loading, error, success, newDeckName, showCreateForm, showImportForm, shareToken } = this.state;
 
         if (loading) {
             return <div style={{ textAlign: 'center', marginTop: '50px' }}>로딩 중...</div>;
@@ -75,16 +96,33 @@ class DeckList extends Component {
                     </div>
                 )}
 
-                <div style={{ marginBottom: '20px' }}>
-                    {!showCreateForm ? (
-                        <button
-                            onClick={() => this.setState({ showCreateForm: true })}
-                            style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                            + 새 덱 만들기
-                        </button>
-                    ) : (
-                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                {success && (
+                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#d4edda', color: '#155724', border: '1px solid #c3e6cb', borderRadius: '4px' }}>
+                        {success}
+                    </div>
+                )}
+
+                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+                    {!showCreateForm && !showImportForm && (
+                        <>
+                            <button
+                                onClick={() => this.setState({ showCreateForm: true })}
+                                style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                + 새 덱 만들기
+                            </button>
+                            <button
+                                onClick={() => this.setState({ showImportForm: true })}
+                                style={{ padding: '10px 20px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                📥 공유된 덱 받기
+                            </button>
+                        </>
+                    )}
+
+                    {showCreateForm && (
+                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa', flex: 1 }}>
+                            <h5>새 덱 만들기</h5>
                             <form onSubmit={this.handleCreateDeck}>
                                 <input
                                     type="text"
@@ -110,11 +148,45 @@ class DeckList extends Component {
                             </form>
                         </div>
                     )}
+
+                    {showImportForm && (
+                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa', flex: 1 }}>
+                            <h5>공유된 덱 가져오기</h5>
+                            <form onSubmit={this.handleImportDeck}>
+                                <input
+                                    type="text"
+                                    placeholder="공유 링크 또는 토큰 입력"
+                                    value={shareToken}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        // URL에서 토큰 추출
+                                        const match = value.match(/shared\/([a-f0-9-]+)/i);
+                                        this.setState({ shareToken: match ? match[1] : value });
+                                    }}
+                                    autoFocus
+                                    style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+                                />
+                                <button
+                                    type="submit"
+                                    style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    가져오기
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => this.setState({ showImportForm: false, shareToken: '' })}
+                                    style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    취소
+                                </button>
+                            </form>
+                        </div>
+                    )}
                 </div>
 
                 {decks.length === 0 ? (
                     <div style={{ padding: '15px', backgroundColor: '#d1ecf1', color: '#0c5460', border: '1px solid #bee5eb', borderRadius: '4px' }}>
-                        덱이 없습니다. 새 덱을 만들어보세요!
+                        덱이 없습니다. 새 덱을 만들거나 공유된 덱을 가져와보세요!
                     </div>
                 ) : (
                     <div>
