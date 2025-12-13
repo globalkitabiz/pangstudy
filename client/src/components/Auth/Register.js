@@ -80,12 +80,17 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }) {
                 <div className="text-center mt-3">
                     <small>
                         {t('auth.alreadyHaveAccount')}{' '}
-                        <a href="#" onClick={(e) => { e.preventDefault(); onSwitchToLogin(); }}>
+                        <button
+                            className="btn btn-link p-0"
+                            style={{ textDecoration: 'underline', border: 'none', background: 'none' }}
+                            onClick={onSwitchToLogin}
+                        >
                             {t('auth.login')}
-                        </a>
+                        </button>
                     </small>
                 </div>
             </Card.Body>
         </Card>
     );
 }
+```
