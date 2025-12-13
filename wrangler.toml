@@ -1,0 +1,17 @@
+name = "pangstudy"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "client/build"
+
+# D1 데이터베이스 바인딩
+[[d1_databases]]
+binding = "DB"
+database_name = "pangstudy-db"
+database_id = "4d447cdc-e314-4f80-975b-4723fee26a11"
+
+# 환경 변수 (개발용)
+[vars]
+JWT_SECRET = "dev-secret-key-change-in-production"
+NODE_ENV = "development"
+
+# 프로덕션 환경 변수는 Cloudflare Dashboard에서 설정
+# Settings > Environment variables > Production

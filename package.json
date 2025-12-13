@@ -1,0 +1,31 @@
+{
+  "name": "anki-clone",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev-server": "nodemon ./bin/www",
+    "client": "cd client && npm start",
+    "heroku-postbuild": "cd client && npm install && npm run build"
+  },
+  "dependencies": {
+    "bcrypt-nodejs": "^0.0.3",
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "cors": "^2.8.5",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
+    "jade": "~1.11.0",
+    "morgan": "~1.8.1",
+    "pg": "^7.12.0",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^4.44.2",
+    "serve-favicon": "~2.4.2"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^5.5.0",
+    "concurrently": "^4.1.0",
+    "dotenv": "^6.2.0"
+  }
+}

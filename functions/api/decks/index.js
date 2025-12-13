@@ -1,0 +1,65 @@
+// 덱 관리 API
+// GET: 사용자의 모든 덱 조회
+// POST: 새 덱 생성
+
+export async function onRequestGet(context) {
+    const { env } = context;
+    const userId = context.user.userId;
+
+    try {
+        const decks = await env.DB.prepare(
+            `SELECT d.*, COUNT(c.id) as card_count
+       FROM decks d
+       LEFT JOIN cards c ON d.id = c.deck_id
+       WHERE d.user_id = ?
+       GROUP BY d.id
+       ORDER BY d.created_at DESC`
+        ).bind(userId).all();
+
+        return new Response(JSON.stringify({ decks: decks.results }), {
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (error) {
+        console.error('Get decks error:', error);
+        return new Response(JSON.stringify({ error: 'Internal server error' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+}
+
+export async function onRequestPost(context) {
+    const { request, env } = context;
+    const userId = context.user.userId;
+
+    try {
+        const { name, description } = await request.json();
+
+        if (!name) {
+            return new Response(JSON.stringify({ error: 'Deck name is required' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        const result = await env.DB.prepare(
+            'INSERT INTO decks (user_id, name, description) VALUES (?, ?, ?)'
+        ).bind(userId, name, description || null).run();
+
+        const deckId = result.meta.last_row_id;
+
+        return new Response(JSON.stringify({
+            success: true,
+            deck: { id: deckId, name, description, user_id: userId }
+        }), {
+            status: 201,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (error) {
+        console.error('Create deck error:', error);
+        return new Response(JSON.stringify({ error: 'Internal server error' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+}

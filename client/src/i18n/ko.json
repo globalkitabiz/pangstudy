@@ -1,0 +1,76 @@
+{
+    "auth": {
+        "login": "로그인",
+        "register": "회원가입",
+        "email": "이메일",
+        "password": "비밀번호",
+        "username": "사용자 이름",
+        "logout": "로그아웃",
+        "loginButton": "로그인하기",
+        "registerButton": "가입하기",
+        "alreadyHaveAccount": "이미 계정이 있으신가요?",
+        "dontHaveAccount": "계정이 없으신가요?",
+        "loginSuccess": "로그인 성공!",
+        "registerSuccess": "회원가입 성공!",
+        "loginFailed": "로그인 실패",
+        "registerFailed": "회원가입 실패"
+    },
+    "deck": {
+        "myDecks": "내 덱",
+        "createDeck": "새 덱 만들기",
+        "importDeck": "덱 가져오기",
+        "deckName": "덱 이름",
+        "deckDescription": "덱 설명",
+        "cardCount": "카드 수",
+        "createButton": "만들기",
+        "cancelButton": "취소",
+        "deleteDeck": "덱 삭제",
+        "confirmDelete": "정말 이 덱을 삭제하시겠습니까?",
+        "noDeck": "덱이 없습니다. 새 덱을 만들거나 Anki 덱을 가져오세요."
+    },
+    "card": {
+        "addCard": "카드 추가",
+        "front": "앞면 (질문)",
+        "back": "뒷면 (답변)",
+        "frontPlaceholder": "예: Hello",
+        "backPlaceholder": "예: 안녕하세요",
+        "saveCard": "저장",
+        "deleteCard": "삭제",
+        "editCard": "수정"
+    },
+    "study": {
+        "startStudy": "학습 시작",
+        "showAnswer": "답 보기",
+        "again": "다시",
+        "hard": "어려움",
+        "good": "좋음",
+        "easy": "쉬움",
+        "studyComplete": "학습 완료!",
+        "noCardsToStudy": "학습할 카드가 없습니다.",
+        "dueCards": "복습할 카드",
+        "newCards": "새 카드",
+        "studyProgress": "학습 진행도"
+    },
+    "import": {
+        "importAnkiDeck": "Anki 덱 가져오기",
+        "selectFile": "파일 선택",
+        "dragAndDrop": "또는 파일을 여기로 드래그하세요",
+        "importing": "가져오는 중...",
+        "importSuccess": "덱 가져오기 성공!",
+        "importFailed": "덱 가져오기 실패",
+        "fileFormat": ".apkg 파일만 지원됩니다",
+        "uploadButton": "업로드"
+    },
+    "common": {
+        "save": "저장",
+        "cancel": "취소",
+        "delete": "삭제",
+        "edit": "수정",
+        "close": "닫기",
+        "confirm": "확인",
+        "loading": "로딩 중...",
+        "error": "오류",
+        "success": "성공",
+        "warning": "경고"
+    }
+}
