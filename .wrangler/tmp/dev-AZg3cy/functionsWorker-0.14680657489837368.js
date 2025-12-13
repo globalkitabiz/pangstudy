@@ -331,9 +331,22 @@ __name(onRequestPost4, "onRequestPost4");
 __name2(onRequestPost4, "onRequestPost");
 async function onRequest(context) {
   const { request, next, env } = context;
-  const publicPaths = ["/api/auth/login", "/api/auth/register"];
+  const publicPaths = [
+    "/api/auth/login",
+    "/api/auth/register",
+    "/",
+    "/index.html",
+    "/favicon.ico",
+    "/manifest.json",
+    "/static/",
+    "/service-worker.js",
+    "/precache-manifest"
+  ];
   const url = new URL(request.url);
-  if (publicPaths.some((path) => url.pathname.startsWith(path))) {
+  if (publicPaths.some((path) => url.pathname === path || url.pathname.startsWith(path))) {
+    return next();
+  }
+  if (!url.pathname.startsWith("/api/")) {
     return next();
   }
   const authHeader = request.headers.get("Authorization");

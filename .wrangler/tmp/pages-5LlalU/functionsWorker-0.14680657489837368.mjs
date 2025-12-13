@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-1fGHdR/checked-fetch.js
+// ../.wrangler/tmp/bundle-4XSVpY/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -302,9 +302,22 @@ __name(onRequestPost4, "onRequestPost");
 // _middleware.js
 async function onRequest(context) {
   const { request, next, env } = context;
-  const publicPaths = ["/api/auth/login", "/api/auth/register"];
+  const publicPaths = [
+    "/api/auth/login",
+    "/api/auth/register",
+    "/",
+    "/index.html",
+    "/favicon.ico",
+    "/manifest.json",
+    "/static/",
+    "/service-worker.js",
+    "/precache-manifest"
+  ];
   const url = new URL(request.url);
-  if (publicPaths.some((path) => url.pathname.startsWith(path))) {
+  if (publicPaths.some((path) => url.pathname === path || url.pathname.startsWith(path))) {
+    return next();
+  }
+  if (!url.pathname.startsWith("/api/")) {
     return next();
   }
   const authHeader = request.headers.get("Authorization");
@@ -877,7 +890,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-1fGHdR/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-4XSVpY/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -909,7 +922,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-1fGHdR/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-4XSVpY/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

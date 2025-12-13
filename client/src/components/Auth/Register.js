@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from '../../i18n/useTranslation';
 import { Form, Button, Alert, Card } from 'react-bootstrap';
 
-export function Register({ onSwitchToLogin }) {
+export function Register({ onSwitchToLogin, onRegisterSuccess }) {
     const { t } = useTranslation();
     const { register } = useAuth();
     const [email, setEmail] = useState('');
@@ -20,6 +20,9 @@ export function Register({ onSwitchToLogin }) {
 
         try {
             await register(email, password, username);
+            if (onRegisterSuccess) {
+                onRegisterSuccess();
+            }
         } catch (err) {
             setError(err.message || t('auth.registerFailed'));
         } finally {

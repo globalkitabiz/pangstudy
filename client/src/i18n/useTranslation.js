@@ -22,7 +22,7 @@ function createTranslator(lang) {
         let value = messages;
 
         for (const k of keys) {
-            value = value?.[k];
+            value = value && value[k];
             if (value === undefined) {
                 console.warn(`Translation missing: ${key}`);
                 return key;
