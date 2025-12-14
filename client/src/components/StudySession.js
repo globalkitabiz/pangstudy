@@ -120,7 +120,7 @@ class StudySession extends Component {
         if (completed) {
             return (
                 <div style={{ maxWidth: '600px', margin: '50px auto', padding: '30px', textAlign: 'center', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#fff' }}>
-                    <h2><span role="img" aria-label="축하">🎉</span> 학습 완료!</h2>
+                    <h2>학습 완료!</h2>
                     <p style={{ fontSize: '18px', marginTop: '20px' }}>오늘의 학습을 모두 마쳤습니다.</p>
 
                     <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
