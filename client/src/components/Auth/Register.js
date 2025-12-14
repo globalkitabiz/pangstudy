@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import { authAPI } from '../../utils/api';
 import { getErrorMessage } from '../../utils/errorHandler';
-import LoadingSpinner from '../LoadingSpinner';
 
 class Register extends Component {
     constructor(props) {

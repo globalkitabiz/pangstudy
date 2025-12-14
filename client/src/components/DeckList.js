@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { deckAPI, shareAPI } from '../utils/api';
-import { getErrorMessage, getSuccessMessage } from '../utils/errorHandler';
 import Statistics from './Statistics';
 import LoadingSpinner from './LoadingSpinner';
 import ThemeToggle from './ThemeToggle';
@@ -179,7 +178,7 @@ class DeckList extends Component {
     };
 
     render() {
-        const { loading, error, success, newDeckName, showCreateForm, showImportForm, showAnkiImport, shareToken, ankiImporting, searchQuery, sortBy } = this.state;
+        const { loading, error, success, newDeckName, showCreateForm, showImportForm, showAnkiImport, shareToken, searchQuery, sortBy } = this.state;
         const { colors } = this.context;
 
         if (loading) {
