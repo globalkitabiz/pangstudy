@@ -111,13 +111,13 @@ class DeckDetail extends Component {
                                 onClick={() => this.props.history.push(`/study/${deck.id}`)}
                                 style={{ padding: '8px 16px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                             >
-                                📚 학습 시작
+                                <span role="img" aria-label="책">📚</span> 학습 시작
                             </button>
                             <button
                                 onClick={this.handleShareDeck}
                                 style={{ padding: '8px 16px', backgroundColor: '#17a2b8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                             >
-                                📤 이 덱 공유하기
+                                <span role="img" aria-label="공유">📤</span> 이 덱 공유하기
                             </button>
                         </div>
                     </div>
@@ -172,7 +172,7 @@ class DeckDetail extends Component {
                                     onClick={this.handleCopyShareLink}
                                     style={{ flex: 1, padding: '10px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
-                                    📋 링크 복사
+                                    <span role="img" aria-label="복사">📋</span> 링크 복사
                                 </button>
                                 <button
                                     onClick={() => this.setState({ showShareModal: false })}

@@ -118,7 +118,7 @@ class DeckList extends Component {
                                 onClick={() => this.setState({ showImportForm: true })}
                                 style={{ padding: '10px 20px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                             >
-                                📥 공유된 덱 받기
+                                <span role="img" aria-label="받기">📥</span> 공유된 덱 받기
                             </button>
                         </>
                     )}

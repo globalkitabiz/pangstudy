@@ -41,7 +41,7 @@ class Statistics extends Component {
 
         return (
             <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', marginBottom: '20px' }}>
-                <h3 style={{ marginBottom: '15px' }}>📊 학습 통계</h3>
+                <h3 style={{ marginBottom: '15px' }}><span role="img" aria-label="통계">📊</span> 학습 통계</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px' }}>
                     <div style={{ padding: '15px', backgroundColor: '#fff', borderRadius: '4px', textAlign: 'center' }}>
                         <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#007bff' }}>{stats.deckCount}</div>
