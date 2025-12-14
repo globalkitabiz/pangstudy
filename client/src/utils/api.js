@@ -25,6 +25,13 @@ async function apiRequest(endpoint, options = {}) {
         headers,
     });
 
+    // 401 에러시 자동 로그아웃 및 로그인 페이지로 이동
+    if (response.status === 401) {
+        localStorage.clear();
+        window.location.href = '/login';
+        throw new Error('세션이 만료되었습니다. 다시 로그인해주세요.');
+    }
+
     if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'API request failed');
