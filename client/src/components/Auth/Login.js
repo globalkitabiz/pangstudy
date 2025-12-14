@@ -25,6 +25,9 @@ class Login extends Component {
             if (this.props.onLoginSuccess) {
                 this.props.onLoginSuccess();
             }
+
+            // 덱 목록 페이지로 리다이렉션
+            window.location.href = '/decks';
         } catch (err) {
             this.setState({ error: err.message || '로그인 실패' });
         } finally {

@@ -26,6 +26,9 @@ class Register extends Component {
             if (this.props.onRegisterSuccess) {
                 this.props.onRegisterSuccess();
             }
+
+            // 덱 목록 페이지로 리다이렉션
+            window.location.href = '/decks';
         } catch (err) {
             this.setState({ error: err.message || '회원가입 실패' });
         } finally {
