@@ -91,6 +91,11 @@ export const cardAPI = {
             method: 'PUT',
             body: JSON.stringify({ front, back }),
         }),
+    bulkCreate: (deckId, cards) =>
+        apiRequest(`/api/cards/bulk`, {
+            method: 'POST',
+            body: JSON.stringify({ deckId, cards }),
+        }),
 };
 
 // 학습 API
