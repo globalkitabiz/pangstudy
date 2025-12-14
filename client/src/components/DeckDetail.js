@@ -437,18 +437,6 @@ class DeckDetail extends Component {
                             </div>
                             <button type="submit" style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
                                 저장
-                            </div>
-                            ) : (
-                            <div>
-                                {cards.map(card => (
-                                    <div
-                                        key={card.id}
-                                        style={{ padding: '15px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#fff' }}
-                                    >
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                                <div>
-                                                    <strong>앞면:</strong>
                                                     <p style={{ margin: '5px 0 0 0' }}>{card.front}</p>
                                                 </div>
                                                 <div>
@@ -473,13 +461,14 @@ class DeckDetail extends Component {
                                                 </button>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    </div >
+                                ))
+    }
                             </div>
                                 )}
-                    </div>
+                    </div >
                 );
     }
 }
 
-                export default withRouter(DeckDetail);
+export default withRouter(DeckDetail);
