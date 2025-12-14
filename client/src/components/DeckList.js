@@ -5,8 +5,12 @@ import { deckAPI, shareAPI } from '../utils/api';
 import { getErrorMessage, getSuccessMessage } from '../utils/errorHandler';
 import Statistics from './Statistics';
 import LoadingSpinner from './LoadingSpinner';
+import ThemeToggle from './ThemeToggle';
+import { ThemeContext } from '../contexts/ThemeContext';
 
 class DeckList extends Component {
+    static contextType = ThemeContext;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -175,7 +179,8 @@ class DeckList extends Component {
     };
 
     render() {
-        const { loading, error, success, newDeckName, showCreateForm, showImportForm, showAnkiImport, shareToken, ankiFile, ankiImporting, searchQuery, sortBy } = this.state;
+        const { loading, error, success, newDeckName, showCreateForm, showImportForm, showAnkiImport, shareToken, ankiImporting, searchQuery, sortBy } = this.state;
+        const { colors } = this.context;
 
         if (loading) {
             return <LoadingSpinner message="덱 목록을 불러오는 중..." />;
@@ -184,25 +189,28 @@ class DeckList extends Component {
         const filteredDecks = this.getFilteredAndSortedDecks();
 
         return (
-            <div style={{ maxWidth: '800px', margin: '20px auto', padding: '20px' }}>
+            <div style={{ maxWidth: '800px', margin: '20px auto', padding: '20px', backgroundColor: colors.background, color: colors.text, minHeight: '100vh' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <h2>내 덱</h2>
-                    <button
-                        onClick={this.handleLogout}
-                        style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                        로그아웃
-                    </button>
+                    <h2 style={{ color: colors.text }}>내 덱</h2>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <ThemeToggle />
+                        <button
+                            onClick={this.handleLogout}
+                            style={{ padding: '8px 16px', backgroundColor: colors.buttonDanger, color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                            로그아웃
+                        </button>
+                    </div>
                 </div>
 
                 {error && (
-                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb', borderRadius: '4px' }}>
+                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: colors.alertDanger.bg, color: colors.alertDanger.text, border: `1px solid ${colors.alertDanger.border}`, borderRadius: '4px' }}>
                         {error}
                     </div>
                 )}
 
                 {success && (
-                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#d4edda', color: '#155724', border: '1px solid #c3e6cb', borderRadius: '4px' }}>
+                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: colors.alertSuccess.bg, color: colors.alertSuccess.text, border: `1px solid ${colors.alertSuccess.border}`, borderRadius: '4px' }}>
                         {success}
                     </div>
                 )}
@@ -219,7 +227,9 @@ class DeckList extends Component {
                         style={{
                             flex: 1,
                             padding: '10px',
-                            border: '1px solid #ddd',
+                            backgroundColor: colors.inputBackground,
+                            color: colors.text,
+                            border: `1px solid ${colors.inputBorder}`,
                             borderRadius: '4px',
                             fontSize: '14px'
                         }}
@@ -229,10 +239,11 @@ class DeckList extends Component {
                         onChange={(e) => this.setState({ sortBy: e.target.value })}
                         style={{
                             padding: '10px',
-                            border: '1px solid #ddd',
+                            backgroundColor: colors.inputBackground,
+                            color: colors.text,
+                            border: `1px solid ${colors.inputBorder}`,
                             borderRadius: '4px',
                             fontSize: '14px',
-                            backgroundColor: '#fff',
                             cursor: 'pointer'
                         }}
                     >
@@ -247,13 +258,13 @@ class DeckList extends Component {
                         <>
                             <button
                                 onClick={() => this.setState({ showCreateForm: true })}
-                                style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                style={{ padding: '10px 20px', backgroundColor: colors.buttonPrimary, color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                             >
                                 + 새 덱 만들기
                             </button>
                             <button
                                 onClick={() => this.setState({ showImportForm: true })}
-                                style={{ padding: '10px 20px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                style={{ padding: '10px 20px', backgroundColor: colors.buttonSuccess, color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                             >
                                 <span role="img" aria-label="받기">📥</span> 공유된 덱 받기
                             </button>
@@ -267,8 +278,8 @@ class DeckList extends Component {
                     )}
 
                     {showCreateForm && (
-                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa', flex: 1 }}>
-                            <h5>새 덱 만들기</h5>
+                        <div style={{ padding: '15px', border: `1px solid ${colors.border}`, borderRadius: '4px', backgroundColor: colors.backgroundSecondary, flex: 1 }}>
+                            <h5 style={{ color: colors.text }}>새 덱 만들기</h5>
                             <form onSubmit={this.handleCreateDeck}>
                                 <input
                                     type="text"
@@ -276,18 +287,18 @@ class DeckList extends Component {
                                     value={newDeckName}
                                     onChange={(e) => this.setState({ newDeckName: e.target.value })}
                                     autoFocus
-                                    style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+                                    style={{ width: '100%', padding: '8px', marginBottom: '10px', backgroundColor: colors.inputBackground, color: colors.text, border: `1px solid ${colors.inputBorder}`, borderRadius: '4px' }}
                                 />
                                 <button
                                     type="submit"
-                                    style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: colors.buttonPrimary, color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     만들기
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => this.setState({ showCreateForm: false })}
-                                    style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', backgroundColor: colors.buttonSecondary, color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     취소
                                 </button>
@@ -296,8 +307,8 @@ class DeckList extends Component {
                     )}
 
                     {showImportForm && (
-                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa', flex: 1 }}>
-                            <h5>공유된 덱 가져오기</h5>
+                        <div style={{ padding: '15px', border: `1px solid ${colors.border}`, borderRadius: '4px', backgroundColor: colors.backgroundSecondary, flex: 1 }}>
+                            <h5 style={{ color: colors.text }}>공유된 덱 가져오기</h5>
                             <form onSubmit={this.handleImportDeck}>
                                 <input
                                     type="text"
@@ -305,66 +316,32 @@ class DeckList extends Component {
                                     value={shareToken}
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        // URL에서 토큰 추출
                                         const tokenMatch = value.match(/shared\/([a-zA-Z0-9]+)/);
                                         this.setState({ shareToken: tokenMatch ? tokenMatch[1] : value });
                                     }}
                                     autoFocus
-                                    style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+                                    style={{ width: '100%', padding: '8px', marginBottom: '10px', backgroundColor: colors.inputBackground, color: colors.text, border: `1px solid ${colors.inputBorder}`, borderRadius: '4px' }}
                                 />
                                 <button
                                     type="submit"
-                                    style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: colors.buttonSuccess, color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     가져오기
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => this.setState({ showImportForm: false })}
-                                    style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', backgroundColor: colors.buttonSecondary, color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     취소
                                 </button>
                             </form>
                         </div>
                     )}
-
-                    {showAnkiImport && (
-                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa', flex: 1 }}>
-                            <h5>Anki 덱 가져오기</h5>
-                            <form onSubmit={this.handleAnkiImport}>
-                                <input
-                                    type="file"
-                                    accept=".apkg"
-                                    onChange={(e) => this.setState({ ankiFile: e.target.files[0] })}
-                                    style={{ marginBottom: '10px' }}
-                                />
-                                <div style={{ marginBottom: '10px', fontSize: '12px', color: '#6c757d' }}>
-                                    .apkg 파일을 선택하세요. <button type="button" onClick={this.openAnkiWeb} style={{ background: 'none', border: 'none', color: '#007bff', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>AnkiWeb에서 다운로드</button>
-                                </div>
-                                <div>
-                                    <button
-                                        type="submit"
-                                        disabled={ankiImporting}
-                                        style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: ankiImporting ? '#6c757d' : '#6f42c1', color: '#fff', border: 'none', borderRadius: '4px', cursor: ankiImporting ? 'not-allowed' : 'pointer' }}
-                                    >
-                                        {ankiImporting ? '가져오는 중...' : '가져오기'}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => this.setState({ showAnkiImport: false })}
-                                        style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                                    >
-                                        취소
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    )}
                 </div>
 
                 {filteredDecks.length === 0 ? (
-                    <div style={{ padding: '15px', backgroundColor: '#d1ecf1', color: '#0c5460', border: '1px solid #bee5eb', borderRadius: '4px' }}>
+                    <div style={{ padding: '15px', backgroundColor: colors.alertInfo.bg, color: colors.alertInfo.text, border: `1px solid ${colors.alertInfo.border}`, borderRadius: '4px' }}>
                         {searchQuery ? '검색 결과가 없습니다.' : '덱이 없습니다. 새 덱을 만들거나 공유된 덱을 가져와보세요!'}
                     </div>
                 ) : (
@@ -376,9 +353,9 @@ class DeckList extends Component {
                                     display: 'flex',
                                     padding: '15px',
                                     marginBottom: '10px',
-                                    border: '1px solid #ddd',
+                                    border: `1px solid ${colors.cardBorder}`,
                                     borderRadius: '4px',
-                                    backgroundColor: '#fff',
+                                    backgroundColor: colors.cardBackground,
                                     alignItems: 'center'
                                 }}
                             >
@@ -387,11 +364,11 @@ class DeckList extends Component {
                                     style={{
                                         flex: 1,
                                         textDecoration: 'none',
-                                        color: 'inherit'
+                                        color: colors.text
                                     }}
                                 >
-                                    <h4 style={{ margin: '0 0 5px 0' }}>{deck.name}</h4>
-                                    <p style={{ margin: 0, color: '#6c757d', fontSize: '14px' }}>
+                                    <h4 style={{ margin: '0 0 5px 0', color: colors.text }}>{deck.name}</h4>
+                                    <p style={{ margin: 0, color: colors.textSecondary, fontSize: '14px' }}>
                                         카드 {deck.card_count || 0}개
                                     </p>
                                 </Link>
@@ -399,7 +376,7 @@ class DeckList extends Component {
                                     onClick={(e) => this.handleDeleteDeck(e, deck.id, deck.name)}
                                     style={{
                                         padding: '6px 12px',
-                                        backgroundColor: '#dc3545',
+                                        backgroundColor: colors.buttonDanger,
                                         color: '#fff',
                                         border: 'none',
                                         borderRadius: '4px',

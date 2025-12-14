@@ -8,6 +8,7 @@ import DeckDetail from './components/DeckDetail';
 import StudySession from './components/StudySession';
 import Layout from './components/Layout';
 import { authAPI } from './utils/api';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 class App extends Component {
     constructor(props) {
@@ -26,52 +27,56 @@ class App extends Component {
         const { user, showRegister } = this.state;
 
         return (
-            <Layout>
-                <h1>Pangstudy - 플래시카드 학습</h1>
-                <Switch>
-                    <Route exact path="/login">
-                        {user ? (
-                            <Redirect to="/decks" />
-                        ) : showRegister ? (
-                            <Register
-                                onSwitchToLogin={() => this.setState({ showRegister: false })}
-                            />
-                        ) : (
-                            <Login
-                                onSwitchToRegister={() => this.setState({ showRegister: true })}
-                                onLoginSuccess={this.handleLoginSuccess}
-                            />
-                        )}
-                    </Route>
+            <ThemeProvider>
+                <Layout>
+                    <h1>Pangstudy - 플래시카드 학습</h1>
 
-                    <Route exact path="/register">
-                        {user ? (
-                            <Redirect to="/decks" />
-                        ) : (
-                            <Register
-                                onSwitchToLogin={() => this.setState({ showRegister: false })}
-                                onRegisterSuccess={this.handleLoginSuccess}
-                            />
-                        )}
-                    </Route>
+                    <Switch>
+                        <Route exact path="/login">
+                            {user ? (
+                                <Redirect to="/decks" />
+                            ) : showRegister ? (
+                                <Register
+                                    onSwitchToLogin={() => this.setState({ showRegister: false })}
+                                    onRegisterSuccess={this.handleLoginSuccess}
+                                />
+                            ) : (
+                                <Login
+                                    onSwitchToRegister={() => this.setState({ showRegister: true })}
+                                    onLoginSuccess={this.handleLoginSuccess}
+                                />
+                            )}
+                        </Route>
 
-                    <Route exact path="/decks">
-                        {user ? <DeckList /> : <Redirect to="/login" />}
-                    </Route>
+                        <Route exact path="/register">
+                            {user ? (
+                                <Redirect to="/decks" />
+                            ) : (
+                                <Register
+                                    onSwitchToLogin={() => this.setState({ showRegister: false })}
+                                    onRegisterSuccess={this.handleLoginSuccess}
+                                />
+                            )}
+                        </Route>
 
-                    <Route exact path="/decks/:deckId">
-                        {user ? <DeckDetail /> : <Redirect to="/login" />}
-                    </Route>
+                        <Route exact path="/decks">
+                            {user ? <DeckList /> : <Redirect to="/login" />}
+                        </Route>
 
-                    <Route exact path="/study/:deckId">
-                        {user ? <StudySession /> : <Redirect to="/login" />}
-                    </Route>
+                        <Route exact path="/decks/:deckId">
+                            {user ? <DeckDetail /> : <Redirect to="/login" />}
+                        </Route>
 
-                    <Route exact path="/">
-                        <Redirect to={user ? "/decks" : "/login"} />
-                    </Route>
-                </Switch>
-            </Layout>
+                        <Route exact path="/study/:deckId">
+                            {user ? <StudySession /> : <Redirect to="/login" />}
+                        </Route>
+
+                        <Route exact path="/">
+                            <Redirect to={user ? "/decks" : "/login"} />
+                        </Route>
+                    </Switch>
+                </Layout>
+            </ThemeProvider>
         );
     }
 }
