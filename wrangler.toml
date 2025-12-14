@@ -8,10 +8,11 @@ binding = "DB"
 database_name = "pangstudy-db"
 database_id = "4d447cdc-e314-4f80-975b-4723fee26a11"
 
-# 환경 변수 (개발용)
+# 환경 변수
 [vars]
-JWT_SECRET = "dev-secret-key-change-in-production"
-NODE_ENV = "development"
+# 보안을 위해 강력한 랜덤 문자열 사용
+JWT_SECRET = "7K9mN2pQ4rS6tU8vW1xY3zA5bC7dE0fG2hI4jK6lM8nO0pR2sT4uV6wX8yZ1aB3c"
+NODE_ENV = "production"
 
-# 프로덕션 환경 변수는 Cloudflare Dashboard에서 설정
-# Settings > Environment variables > Production
+# 참고: 더 높은 보안을 위해서는 Cloudflare Secret 사용을 권장합니다
+# 하지만 현재 설정에서는 wrangler.toml을 통해 관리됩니다
