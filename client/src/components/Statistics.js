@@ -1,11 +1,13 @@
 // 통계 컴포넌트
 import React, { Component } from 'react';
+import ProgressChart from './ProgressChart';
 
 class Statistics extends Component {
     constructor(props) {
         super(props);
         this.state = {
             stats: null,
+            weeklyData: [],
             loading: true,
             error: ''
         };
@@ -13,6 +15,7 @@ class Statistics extends Component {
 
     componentDidMount() {
         this.loadStats();
+        this.loadWeeklyData();
     }
 
     loadStats = async () => {
@@ -32,8 +35,25 @@ class Statistics extends Component {
         }
     };
 
+    loadWeeklyData = async () => {
+        try {
+            const response = await fetch('/api/stats/weekly', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Failed to load weekly data');
+
+            const data = await response.json();
+            this.setState({ weeklyData: data.weeklyData });
+        } catch (err) {
+            console.error('주간 데이터 로드 실패:', err);
+        }
+    };
+
     render() {
-        const { stats, loading, error } = this.state;
+        const { stats, weeklyData, loading, error } = this.state;
 
         if (loading) return <div>로딩 중...</div>;
         if (error) return <div>오류: {error}</div>;
@@ -60,6 +80,9 @@ class Statistics extends Component {
                         <div style={{ fontSize: '14px', color: '#6c757d', marginTop: '5px' }}>학습 대기</div>
                     </div>
                 </div>
+
+                {/* 주간 학습 진행률 차트 */}
+                <ProgressChart weeklyData={weeklyData} />
             </div>
         );
     }
