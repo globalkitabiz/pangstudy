@@ -1,239 +1,279 @@
-# Pangstudy - Anki 스타일 웹 학습 앱
+# 🎴 Pangstudy
 
-> 간격 반복 학습(Spaced Repetition) 알고리즘을 사용한 플래시카드 웹 애플리케이션
+Anki 스타일의 간격 반복 학습 애플리케이션입니다. SM-2 알고리즘을 사용하여 효율적인 암기 학습을 지원합니다.
 
-## 📋 프로젝트 개요
+[![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-orange)](https://pangstudy.pages.dev)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-이 프로젝트는 `alexabush/anki-clone`을 기반으로 한 Anki 스타일의 웹 앱입니다. Anki 덱(.apkg 파일) 가져오기 기능을 추가하여 기존 Anki 사용자들이 자신의 학습 자료를 쉽게 이전할 수 있습니다.
+## ✨ 주요 기능
 
-## 🎯 주요 기능
+### 📚 덱 관리
+- ✅ 덱 생성, 수정, 삭제
+- ✅ 덱 검색 및 정렬 (이름순, 최신순, 카드 수)
+- ✅ 덱 공유 (링크 생성 및 가져오기)
+- ✅ Anki .apkg 파일 가져오기 (예정)
 
-- ✅ **사용자 인증** - 로그인/회원가입으로 개인 학습 데이터 저장
-- ✅ 간격 반복 학습 알고리즘 (Spaced Repetition)
-- ✅ 덱(Deck) 및 카드 관리
-- ✅ **Anki 덱(.apkg) 가져오기 지원**
-- ✅ **한국어 인터페이스**
-- ✅ 학습 진행도 추적
+### 🃏 카드 관리
+- ✅ 카드 생성, 수정, 삭제
+- ✅ 앞면/뒷면 텍스트 지원
+- ✅ 이미지 첨부 (예정)
+
+### 🧠 학습 기능
+- ✅ SM-2 알고리즘 기반 간격 반복
+- ✅ 4단계 난이도 선택 (다시, 어려움, 보통, 쉬움)
+- ✅ 학습 진행률 추적
+- ✅ 학습 통계 대시보드
+
+### 👤 사용자 기능
+- ✅ 회원가입 / 로그인
+- ✅ JWT 기반 인증
+- ✅ 개인별 덱 관리
+
+### 🎨 UX/UI
 - ✅ 반응형 디자인
-- ✅ **GitHub 자동 배포**
+- ✅ 실시간 검색
+- ✅ 로딩 스피너
+- ✅ 사용자 친화적 에러 메시지
+- 🔜 다크 모드
+- 🔜 키보드 단축키
+
+---
+
+## 🚀 빠른 시작
+
+### 1. 회원가입
+https://pangstudy.pages.dev 접속 → 회원가입
+
+### 2. 덱 생성
+"+ 새 덱 만들기" 버튼 클릭 → 덱 이름 입력
+
+### 3. 카드 추가
+덱 클릭 → "+ 새 카드 추가" → 앞면/뒷면 입력
+
+### 4. 학습 시작
+"📚 학습 시작" 버튼 클릭 → 카드 학습
+
+---
 
 ## 🛠️ 기술 스택
 
-### 프론트엔드
-- React (Create React App)
-- React Router
-- React Bootstrap
+### Frontend
+- **React** 16.6.3 (Class Components)
+- **React Router** 4.x
+- **Vanilla CSS** (인라인 스타일)
 
-### 백엔드 및 인프라
-- **Cloudflare Pages** - 프론트엔드 호스팅 (무료)
-- **Cloudflare Workers** - 서버리스 API (하루 100,000 요청 무료)
-- **Cloudflare D1** - SQLite 기반 서버리스 데이터베이스 (5GB 무료)
-- JWT 인증 (사용자 로그인)
+### Backend
+- **Cloudflare Workers** (Serverless)
+- **Cloudflare D1** (SQLite)
+- **Cloudflare Pages** (호스팅)
 
-### 추가 라이브러리
-- `anki-reader` - Anki 덱 파싱
+### 인증
+- **JWT** (HMAC SHA-256)
 
-## 📁 프로젝트 구조
+### 배포
+- **GitHub Actions** (자동 배포)
 
-```
-C:\win_asp_LMs\pangstudy\
-├── client/                      # React 프론트엔드
-│   ├── src/
-│   │   ├── components/         # React 컴포넌트
-│   │   │   ├── Auth/          # 로그인/회원가입
-│   │   │   └── ImportDeck/    # Anki 덱 가져오기
-│   │   ├── utils/             # 유틸리티 함수
-│   │   ├── i18n/              # 한국어 지원
-│   │   └── contexts/          # React Context
-│   └── package.json
-├── functions/                   # Cloudflare Pages Functions
-│   ├── api/
-│   │   ├── auth/              # 인증 API
-│   │   ├── decks/             # 덱 관리 API
-│   │   └── cards/             # 카드 관리 API
-│   └── _middleware.js         # JWT 인증 미들웨어
-├── migrations/                  # D1 데이터베이스 마이그레이션
-├── docs/                        # 프로젝트 문서
-│   ├── CLOUDFLARE_SETUP.md    # Cloudflare 설정 가이드
-│   ├── implementation_plan.md
-│   └── task.md
-├── wrangler.toml               # Cloudflare 설정
-└── package.json
-```
+---
 
-## 🚀 시작하기
+## 📖 사용 가이드
+
+### 덱 검색
+검색창에 덱 이름 또는 설명 입력 → 실시간 필터링
+
+### 덱 정렬
+드롭다운에서 선택:
+- **최신순**: 최근 생성된 덱부터
+- **이름순**: 가나다순
+- **카드 수**: 카드가 많은 덱부터
+
+### 덱 공유
+1. 덱 상세 페이지 → "📤 이 덱 공유하기"
+2. 공유 링크 복사
+3. 친구에게 전달
+
+### 공유된 덱 가져오기
+1. 덱 목록 → "📥 공유된 덱 받기"
+2. 공유 링크 또는 토큰 입력
+3. "가져오기" 클릭
+
+### 학습 방법
+1. 덱 선택 → "📚 학습 시작"
+2. 카드 앞면 확인 → "답변 보기"
+3. 난이도 선택:
+   - **다시**: 10분 후 다시 학습
+   - **어려움**: 1일 후
+   - **보통**: 3일 후
+   - **쉬움**: 7일 후
+
+---
+
+## 🏗️ 로컬 개발
 
 ### 필수 요구사항
+- Node.js 16+
+- Cloudflare 계정
+- Wrangler CLI
 
-- Node.js (v16 이상)
-- npm 또는 yarn
-- Cloudflare 계정 (무료)
-
-### 설치 방법
-
-#### 1. 의존성 설치
-
+### 설치
 ```bash
-cd C:\win_asp_LMs\pangstudy
+# 저장소 클론
+git clone https://github.com/globalkitabiz/pangstudy.git
+cd pangstudy
 
-# 클라이언트 의존성
+# 클라이언트 의존성 설치
 cd client
 npm install
+
+# 루트로 돌아가기
 cd ..
 ```
 
-#### 2. Cloudflare 설정
-
-**Wrangler CLI 설치 및 로그인**
+### 환경 설정
 ```bash
-npm install -g wrangler
-wrangler login
-```
-
-**D1 데이터베이스 생성**
-```bash
+# D1 데이터베이스 생성
 wrangler d1 create pangstudy-db
+
+# 마이그레이션 실행
+wrangler d1 execute pangstudy-db --file=migrations/0001_initial.sql --remote
+wrangler d1 execute pangstudy-db --file=migrations/0002_shared_decks.sql --remote
+wrangler d1 execute pangstudy-db --file=migrations/0003_reviews_update.sql --remote
+
+# JWT_SECRET 설정
+wrangler secret put JWT_SECRET
+# 강력한 랜덤 문자열 입력 (32자 이상)
 ```
 
-출력된 `database_id`를 `wrangler.toml` 파일에 추가:
-```toml
-[[d1_databases]]
-binding = "DB"
-database_name = "pangstudy-db"
-database_id = "YOUR_DATABASE_ID_HERE"
-```
-
-**데이터베이스 마이그레이션 실행**
+### 로컬 실행
 ```bash
-wrangler d1 execute pangstudy-db --file=./migrations/0001_initial.sql
-```
-
-#### 3. 로컬 실행
-
-**클라이언트 빌드**
-```bash
+# 클라이언트 빌드
 cd client
 npm run build
+
+# 개발 서버 실행
 cd ..
+wrangler pages dev client/build
 ```
 
-**Cloudflare Pages 로컬 개발 서버**
+### 배포
 ```bash
-wrangler pages dev client/build --d1 DB=pangstudy-db
-```
-
-브라우저에서 `http://localhost:8788` 접속
-
-## 🌐 배포하기
-
-### GitHub 저장소 생성
-
-```bash
-git init
+# GitHub에 푸시하면 자동 배포
 git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/pangstudy.git
-git push -u origin main
+git commit -m "Update"
+git push origin main
 ```
 
-### Cloudflare Pages 배포
+---
 
-1. **Cloudflare Dashboard** 접속: https://dash.cloudflare.com
-2. **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**
-3. GitHub 저장소 선택: `pangstudy`
-4. **빌드 설정**:
-   - Build command: `cd client && npm install && npm run build`
-   - Build output directory: `client/build`
-5. **Environment variables** 추가:
-   - `JWT_SECRET`: 강력한 랜덤 문자열
-6. **D1 데이터베이스 바인딩**:
-   - Settings → Functions → D1 database bindings
-   - Variable name: `DB`
-   - D1 database: `pangstudy-db`
-7. **Save and Deploy**
+## 📊 데이터베이스 스키마
 
-자세한 설정 가이드는 [CLOUDFLARE_SETUP.md](./docs/CLOUDFLARE_SETUP.md)를 참조하세요.
+### users
+- id, email, password_hash, username, created_at
 
-## 📚 사용 방법
+### decks
+- id, user_id, name, description, created_at, updated_at
 
-### 1. 회원가입 / 로그인
-- 앱 접속 후 회원가입
-- 이메일과 비밀번호로 로그인
+### cards
+- id, deck_id, front, back, created_at, updated_at
 
-### 2. 새 덱 생성
-- "새 덱 만들기" 버튼 클릭
-- 덱 이름 입력
+### reviews
+- id, card_id, user_id, difficulty, next_review_date, interval_days, ease_factor, repetitions, reviewed_at
 
-### 3. Anki 덱 가져오기
-- "덱 가져오기" 버튼 클릭
-- `.apkg` 파일 선택 또는 드래그 앤 드롭
-- 가져오기 완료 대기
+### shared_decks
+- id, deck_id, share_token, created_at
 
-### 4. 카드 추가
-- 덱 선택
-- "카드 추가" 버튼 클릭
-- 앞면(질문)과 뒷면(답변) 입력
+---
 
-### 5. 학습 시작
-- 학습할 덱 선택
-- "학습 시작" 버튼 클릭
-- 카드를 보고 난이도 선택:
-  - **다시**: 다시 학습 (짧은 간격)
-  - **어려움**: 어려움 (중간 간격)
-  - **좋음**: 좋음 (표준 간격)
-  - **쉬움**: 쉬움 (긴 간격)
+## 🔐 보안
 
-## 📖 문서
+### JWT 인증
+- HMAC SHA-256 서명
+- Bearer 토큰 방식
+- 환경변수로 시크릿 관리
 
-- [구현 계획서](./docs/implementation_plan.md)
-- [Cloudflare 설정 가이드](./docs/CLOUDFLARE_SETUP.md)
-- [작업 체크리스트](./docs/task.md)
+### 비밀번호
+- SHA-256 해싱
+- 클라이언트 측 해싱
 
-## 🔧 개발
+### 데이터 접근
+- 사용자별 덱/카드 격리
+- 소유권 검증
 
-### 주요 명령어
+---
 
-```bash
-# 로컬 개발 서버
-wrangler pages dev client/build --d1 DB=pangstudy-db
+## 📝 개발 진행 상황
 
-# 클라이언트 빌드
-cd client && npm run build
+### ✅ 완료 (53%)
+- [x] 1주차: 긴급 수정 및 기본 기능 개선
+  - [x] 로그인/회원가입 리다이렉션
+  - [x] JWT_SECRET 보안 강화
+  - [x] 카드 편집 API
+  - [x] Reviews 마이그레이션
 
-# D1 데이터베이스 쿼리 (디버깅)
-wrangler d1 execute pangstudy-db --command="SELECT * FROM users"
-```
+- [x] 2주차: UX 개선 및 검색 기능
+  - [x] 덱 검색 기능
+  - [x] 덱 정렬 기능
+  - [x] 에러 처리 개선
+  - [x] 로딩 스피너
 
-### 프로젝트 구조
+### 🔜 예정 (47%)
+- [ ] 3주차: 학습 경험 향상
+  - [ ] 학습 진행률 시각화
+  - [ ] 다크 모드
+  - [ ] 키보드 단축키
 
-- `functions/` - Cloudflare Pages Functions (서버리스 API)
-- `client/` - React 프론트엔드
-- `migrations/` - D1 데이터베이스 스키마
-- `docs/` - 프로젝트 문서
+- [ ] 4주차: 고급 기능 및 최적화
+  - [ ] CSV 일괄 가져오기
+  - [ ] 페이지네이션
+  - [ ] API 캐싱
 
-## 💰 비용
+---
 
-**완전 무료!** (Cloudflare 무료 티어 사용)
-- Pages: 무제한 요청
-- Workers: 하루 100,000 요청
-- D1: 5GB 저장, 하루 500만 읽기
+## 🐛 알려진 이슈
+
+- [ ] Anki .apkg 파일 가져오기 미구현
+- [ ] 이미지 첨부 기능 미구현 (Cloudflare R2 설정 필요)
+- [ ] 모바일 최적화 필요
+
+---
 
 ## 🤝 기여
 
-이 프로젝트는 개인 학습용 프로젝트입니다.
+이슈 및 풀 리퀘스트를 환영합니다!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
 
 ## 📄 라이선스
 
-원본 프로젝트 라이선스를 따릅니다.
+MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일 참조
 
-## 🙏 감사의 말
-
-- [alexabush/anki-clone](https://github.com/alexabush/anki-clone) - 기반 프로젝트
-- [Anki](https://apps.ankiweb.net/) - 영감을 준 원본 앱
-- [anki-reader](https://github.com/chenlijun99/anki-reader) - Anki 덱 파싱 라이브러리
-- [Cloudflare](https://www.cloudflare.com/) - 무료 인프라 제공
+---
 
 ## 📞 문의
 
-프로젝트 관련 문의사항은 GitHub Issues를 이용해주세요.
+프로젝트 링크: https://github.com/globalkitabiz/pangstudy
+
+---
+
+## 🙏 감사의 말
+
+- [Anki](https://apps.ankiweb.net/) - 영감을 준 원본 애플리케이션
+- [Cloudflare](https://www.cloudflare.com/) - 인프라 제공
+- [React](https://reactjs.org/) - UI 프레임워크
+
+---
+
+## 📚 문서
+
+- [개발 계획표](docs/implementation_plan.md)
+- [작업 체크리스트](docs/task.md)
+- [개선 제안](docs/improvement_suggestions.md)
+- [1주차 완료 보고서](docs/week1_completion.md)
+- [2주차 완료 보고서](docs/week2_completion.md)
+- [Cloudflare 설정 가이드](docs/CLOUDFLARE_SETUP.md)
+- [배포 가이드](docs/CLOUDFLARE_PAGES_DEPLOY.md)
