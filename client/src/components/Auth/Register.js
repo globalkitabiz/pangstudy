@@ -1,6 +1,8 @@
 // 회원가입 컴포넌트
 import React, { Component } from 'react';
 import { authAPI } from '../../utils/api';
+import { getErrorMessage } from '../../utils/errorHandler';
+import LoadingSpinner from '../LoadingSpinner';
 
 class Register extends Component {
     constructor(props) {
@@ -30,7 +32,7 @@ class Register extends Component {
             // 덱 목록 페이지로 리다이렉션
             window.location.href = '/decks';
         } catch (err) {
-            this.setState({ error: err.message || '회원가입 실패' });
+            this.setState({ error: getErrorMessage(err) });
         } finally {
             this.setState({ loading: false });
         }

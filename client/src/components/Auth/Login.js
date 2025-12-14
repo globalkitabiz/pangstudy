@@ -1,6 +1,8 @@
 // 로그인 컴포넌트
 import React, { Component } from 'react';
 import { authAPI } from '../../utils/api';
+import { getErrorMessage } from '../../utils/errorHandler';
+import LoadingSpinner from '../LoadingSpinner';
 
 class Login extends Component {
     constructor(props) {
@@ -29,7 +31,7 @@ class Login extends Component {
             // 덱 목록 페이지로 리다이렉션
             window.location.href = '/decks';
         } catch (err) {
-            this.setState({ error: err.message || '로그인 실패' });
+            this.setState({ error: getErrorMessage(err) });
         } finally {
             this.setState({ loading: false });
         }

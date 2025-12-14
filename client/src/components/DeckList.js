@@ -2,7 +2,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { deckAPI, shareAPI } from '../utils/api';
+import { getErrorMessage, getSuccessMessage } from '../utils/errorHandler';
 import Statistics from './Statistics';
+import LoadingSpinner from './LoadingSpinner';
 
 class DeckList extends Component {
     constructor(props) {
@@ -18,7 +20,9 @@ class DeckList extends Component {
             showAnkiImport: false,
             shareToken: '',
             ankiFile: null,
-            ankiImporting: false
+            ankiImporting: false,
+            searchQuery: '',
+            sortBy: 'created'
         };
     }
 
@@ -28,17 +32,22 @@ class DeckList extends Component {
 
     loadDecks = async () => {
         try {
-            this.setState({ loading: true });
-            const data = await deckAPI.getAll();
-            this.setState({ decks: data.decks || [], loading: false });
+            const response = await deckAPI.getAll();
+            this.setState({ decks: response.decks, loading: false });
         } catch (err) {
             this.setState({ error: err.message, loading: false });
         }
     };
 
+    handleLogout = () => {
+        localStorage.clear();
+        window.location.href = '/login';
+    };
+
     handleCreateDeck = async (e) => {
         e.preventDefault();
         const { newDeckName } = this.state;
+
         if (!newDeckName.trim()) return;
 
         try {
@@ -54,15 +63,12 @@ class DeckList extends Component {
     handleImportDeck = async (e) => {
         e.preventDefault();
         const { shareToken } = this.state;
+
         if (!shareToken.trim()) return;
 
         try {
             const result = await shareAPI.importSharedDeck(shareToken);
-            this.setState({
-                shareToken: '',
-                showImportForm: false,
-                success: result.message || '덱을 가져왔습니다!'
-            });
+            this.setState({ shareToken: '', showImportForm: false, success: result.message || '덱을 가져왔습니다!' });
             this.loadDecks();
             setTimeout(() => this.setState({ success: '' }), 3000);
         } catch (err) {
@@ -70,24 +76,12 @@ class DeckList extends Component {
         }
     };
 
-    handleLogout = () => {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-    };
-
-    handleAnkiFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            this.setState({ ankiFile: file });
-        }
-    };
-
     handleAnkiImport = async (e) => {
         e.preventDefault();
         const { ankiFile } = this.state;
+
         if (!ankiFile) {
-            this.setState({ error: '.apkg 파일을 선택해주세요.' });
+            this.setState({ error: 'Anki 파일을 선택해주세요.' });
             return;
         }
 
@@ -149,12 +143,45 @@ class DeckList extends Component {
         }
     };
 
+    // 검색 및 정렬된 덱 목록 가져오기
+    getFilteredAndSortedDecks = () => {
+        const { decks, searchQuery, sortBy } = this.state;
+
+        // 검색 필터링
+        let filtered = decks;
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            filtered = decks.filter(deck =>
+                deck.name.toLowerCase().includes(query) ||
+                (deck.description && deck.description.toLowerCase().includes(query))
+            );
+        }
+
+        // 정렬
+        const sorted = [...filtered].sort((a, b) => {
+            switch (sortBy) {
+                case 'name':
+                    return a.name.localeCompare(b.name);
+                case 'created':
+                    return new Date(b.created_at) - new Date(a.created_at);
+                case 'cards':
+                    return (b.card_count || 0) - (a.card_count || 0);
+                default:
+                    return 0;
+            }
+        });
+
+        return sorted;
+    };
+
     render() {
-        const { decks, loading, error, success, newDeckName, showCreateForm, showImportForm, showAnkiImport, shareToken, ankiFile, ankiImporting } = this.state;
+        const { loading, error, success, newDeckName, showCreateForm, showImportForm, showAnkiImport, shareToken, ankiFile, ankiImporting, searchQuery, sortBy } = this.state;
 
         if (loading) {
-            return <div style={{ textAlign: 'center', marginTop: '50px' }}>로딩 중...</div>;
+            return <LoadingSpinner message="덱 목록을 불러오는 중..." />;
         }
+
+        const filteredDecks = this.getFilteredAndSortedDecks();
 
         return (
             <div style={{ maxWidth: '800px', margin: '20px auto', padding: '20px' }}>
@@ -181,6 +208,39 @@ class DeckList extends Component {
                 )}
 
                 <Statistics />
+
+                {/* 검색 및 정렬 */}
+                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <input
+                        type="text"
+                        placeholder="🔍 덱 검색 (이름 또는 설명)..."
+                        value={searchQuery}
+                        onChange={(e) => this.setState({ searchQuery: e.target.value })}
+                        style={{
+                            flex: 1,
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px'
+                        }}
+                    />
+                    <select
+                        value={sortBy}
+                        onChange={(e) => this.setState({ sortBy: e.target.value })}
+                        style={{
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            backgroundColor: '#fff',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <option value="created">최신순</option>
+                        <option value="name">이름순</option>
+                        <option value="cards">카드 수</option>
+                    </select>
+                </div>
 
                 <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     {!showCreateForm && !showImportForm && !showAnkiImport && (
@@ -246,8 +306,8 @@ class DeckList extends Component {
                                     onChange={(e) => {
                                         const value = e.target.value;
                                         // URL에서 토큰 추출
-                                        const match = value.match(/shared\/([a-f0-9-]+)/i);
-                                        this.setState({ shareToken: match ? match[1] : value });
+                                        const tokenMatch = value.match(/shared\/([a-zA-Z0-9]+)/);
+                                        this.setState({ shareToken: tokenMatch ? tokenMatch[1] : value });
                                     }}
                                     autoFocus
                                     style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
@@ -260,7 +320,7 @@ class DeckList extends Component {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => this.setState({ showImportForm: false, shareToken: '' })}
+                                    onClick={() => this.setState({ showImportForm: false })}
                                     style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     취소
@@ -270,81 +330,29 @@ class DeckList extends Component {
                     )}
 
                     {showAnkiImport && (
-                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa', flex: 1, minWidth: '300px' }}>
-                            <h5><span role="img" aria-label="Anki">🃏</span> Anki 덱 가져오기</h5>
-                            <p style={{ fontSize: '14px', color: '#666', marginBottom: '15px' }}>
-                                AnkiWeb에서 .apkg 파일을 다운로드하여 업로드하세요.
-                            </p>
-                            <button
-                                type="button"
-                                onClick={this.openAnkiWeb}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px',
-                                    marginBottom: '15px',
-                                    backgroundColor: '#235390',
-                                    color: '#fff',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '8px'
-                                }}
-                            >
-                                <span role="img" aria-label="외부 링크">🔗</span> AnkiWeb 공유 덱 둘러보기
-                            </button>
+                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa', flex: 1 }}>
+                            <h5>Anki 덱 가져오기</h5>
                             <form onSubmit={this.handleAnkiImport}>
-                                <div style={{
-                                    border: '2px dashed #ccc',
-                                    borderRadius: '4px',
-                                    padding: '20px',
-                                    textAlign: 'center',
-                                    marginBottom: '10px',
-                                    backgroundColor: ankiFile ? '#e8f5e9' : '#fff'
-                                }}>
-                                    <input
-                                        type="file"
-                                        accept=".apkg"
-                                        onChange={this.handleAnkiFileChange}
-                                        style={{ display: 'none' }}
-                                        id="anki-file-input"
-                                    />
-                                    <label
-                                        htmlFor="anki-file-input"
-                                        style={{
-                                            cursor: 'pointer',
-                                            color: ankiFile ? '#2e7d32' : '#666'
-                                        }}
-                                    >
-                                        {ankiFile ? (
-                                            <><span role="img" aria-label="파일">📄</span> {ankiFile.name}</>
-                                        ) : (
-                                            <><span role="img" aria-label="업로드">📁</span> .apkg 파일을 선택하세요</>
-                                        )}
-                                    </label>
+                                <input
+                                    type="file"
+                                    accept=".apkg"
+                                    onChange={(e) => this.setState({ ankiFile: e.target.files[0] })}
+                                    style={{ marginBottom: '10px' }}
+                                />
+                                <div style={{ marginBottom: '10px', fontSize: '12px', color: '#6c757d' }}>
+                                    .apkg 파일을 선택하세요. <button type="button" onClick={this.openAnkiWeb} style={{ background: 'none', border: 'none', color: '#007bff', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>AnkiWeb에서 다운로드</button>
                                 </div>
-                                <div style={{ display: 'flex', gap: '10px' }}>
+                                <div>
                                     <button
                                         type="submit"
-                                        disabled={!ankiFile || ankiImporting}
-                                        style={{
-                                            flex: 1,
-                                            padding: '8px 16px',
-                                            backgroundColor: ankiFile && !ankiImporting ? '#6f42c1' : '#ccc',
-                                            color: '#fff',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            cursor: ankiFile && !ankiImporting ? 'pointer' : 'not-allowed'
-                                        }}
+                                        disabled={ankiImporting}
+                                        style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: ankiImporting ? '#6c757d' : '#6f42c1', color: '#fff', border: 'none', borderRadius: '4px', cursor: ankiImporting ? 'not-allowed' : 'pointer' }}
                                     >
                                         {ankiImporting ? '가져오는 중...' : '가져오기'}
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => this.setState({ showAnkiImport: false, ankiFile: null })}
-                                        disabled={ankiImporting}
+                                        onClick={() => this.setState({ showAnkiImport: false })}
                                         style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                     >
                                         취소
@@ -355,13 +363,13 @@ class DeckList extends Component {
                     )}
                 </div>
 
-                {decks.length === 0 ? (
+                {filteredDecks.length === 0 ? (
                     <div style={{ padding: '15px', backgroundColor: '#d1ecf1', color: '#0c5460', border: '1px solid #bee5eb', borderRadius: '4px' }}>
-                        덱이 없습니다. 새 덱을 만들거나 공유된 덱을 가져와보세요!
+                        {searchQuery ? '검색 결과가 없습니다.' : '덱이 없습니다. 새 덱을 만들거나 공유된 덱을 가져와보세요!'}
                     </div>
                 ) : (
                     <div>
-                        {decks.map(deck => (
+                        {filteredDecks.map(deck => (
                             <div
                                 key={deck.id}
                                 style={{
@@ -382,21 +390,15 @@ class DeckList extends Component {
                                         color: 'inherit'
                                     }}
                                 >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div>
-                                            <h5 style={{ margin: '0 0 5px 0' }}>{deck.name}</h5>
-                                            {deck.description && <small style={{ color: '#6c757d' }}>{deck.description}</small>}
-                                        </div>
-                                        <div style={{ color: '#6c757d' }}>
-                                            <small>{deck.card_count || 0} 카드</small>
-                                        </div>
-                                    </div>
+                                    <h4 style={{ margin: '0 0 5px 0' }}>{deck.name}</h4>
+                                    <p style={{ margin: 0, color: '#6c757d', fontSize: '14px' }}>
+                                        카드 {deck.card_count || 0}개
+                                    </p>
                                 </Link>
                                 <button
                                     onClick={(e) => this.handleDeleteDeck(e, deck.id, deck.name)}
                                     style={{
-                                        marginLeft: '10px',
-                                        padding: '5px 10px',
+                                        padding: '6px 12px',
                                         backgroundColor: '#dc3545',
                                         color: '#fff',
                                         border: 'none',
@@ -404,9 +406,8 @@ class DeckList extends Component {
                                         cursor: 'pointer',
                                         fontSize: '12px'
                                     }}
-                                    title="덱 삭제"
                                 >
-                                    <span role="img" aria-label="삭제">🗑️</span>
+                                    삭제
                                 </button>
                             </div>
                         ))}
