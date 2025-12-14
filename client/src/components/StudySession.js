@@ -19,6 +19,13 @@ class StudySession extends Component {
 
     componentDidMount() {
         this.loadDueCards();
+        // 키보드 이벤트 리스너 추가
+        document.addEventListener('keydown', this.handleKeyPress);
+    }
+
+    componentWillUnmount() {
+        // 키보드 이벤트 리스너 제거
+        document.removeEventListener('keydown', this.handleKeyPress);
     }
 
     loadDueCards = async () => {
@@ -59,6 +66,46 @@ class StudySession extends Component {
             }
         } catch (err) {
             this.setState({ error: err.message });
+        }
+    };
+
+    // 키보드 단축키 핸들러
+    handleKeyPress = (e) => {
+        const { showAnswer, cards, currentIndex } = this.state;
+        const currentCard = cards[currentIndex];
+
+        // 카드가 없으면 무시
+        if (!currentCard) return;
+
+        // Space: 카드 뒤집기
+        if (e.code === 'Space' && !showAnswer) {
+            e.preventDefault();
+            this.setState({ showAnswer: true });
+            return;
+        }
+
+        // 답변이 표시된 상태에서만 난이도 선택 가능
+        if (showAnswer) {
+            switch (e.key) {
+                case '1':
+                    e.preventDefault();
+                    this.handleAnswer(0); // 다시
+                    break;
+                case '2':
+                    e.preventDefault();
+                    this.handleAnswer(1); // 어려움
+                    break;
+                case '3':
+                    e.preventDefault();
+                    this.handleAnswer(2); // 보통
+                    break;
+                case '4':
+                    e.preventDefault();
+                    this.handleAnswer(3); // 쉬움
+                    break;
+                default:
+                    break;
+            }
         }
     };
 
@@ -111,7 +158,21 @@ class StudySession extends Component {
         const progress = ((currentIndex + 1) / cards.length) * 100;
 
         return (
-            <div style={{ maxWidth: '600px', margin: '50px auto', padding: '20px' }}>
+            <div style={{ maxWidth: '600px', margin: '20px auto', padding: '20px' }}>
+                <h2>학습 세션</h2>
+
+                {/* 단축키 안내 */}
+                <div style={{
+                    padding: '10px',
+                    marginBottom: '20px',
+                    backgroundColor: '#e7f3ff',
+                    border: '1px solid #b3d9ff',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    color: '#004085'
+                }}>
+                    ⌨️ <strong>키보드 단축키:</strong> Space = 답변 보기 | 1 = 다시 | 2 = 어려움 | 3 = 보통 | 4 = 쉬움
+                </div>
                 {error && (
                     <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb', borderRadius: '4px' }}>
                         {error}
