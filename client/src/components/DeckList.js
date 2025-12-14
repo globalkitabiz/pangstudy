@@ -15,7 +15,10 @@ class DeckList extends Component {
             newDeckName: '',
             showCreateForm: false,
             showImportForm: false,
-            shareToken: ''
+            showAnkiImport: false,
+            shareToken: '',
+            ankiFile: null,
+            ankiImporting: false
         };
     }
 
@@ -72,8 +75,63 @@ class DeckList extends Component {
         window.location.href = '/login';
     };
 
+    handleAnkiFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            this.setState({ ankiFile: file });
+        }
+    };
+
+    handleAnkiImport = async (e) => {
+        e.preventDefault();
+        const { ankiFile } = this.state;
+        if (!ankiFile) {
+            this.setState({ error: '.apkg 파일을 선택해주세요.' });
+            return;
+        }
+
+        this.setState({ ankiImporting: true, error: '' });
+
+        try {
+            const formData = new FormData();
+            formData.append('file', ankiFile);
+
+            const token = localStorage.getItem('authToken');
+            const API_BASE = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8788';
+
+            const response = await fetch(`${API_BASE}/api/anki/import`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Anki 파일 가져오기 실패');
+            }
+
+            this.setState({
+                ankiFile: null,
+                showAnkiImport: false,
+                ankiImporting: false,
+                success: result.message || `${result.deckName} 덱을 가져왔습니다! (${result.cardCount}장)`
+            });
+            this.loadDecks();
+            setTimeout(() => this.setState({ success: '' }), 5000);
+        } catch (err) {
+            this.setState({ error: err.message, ankiImporting: false });
+        }
+    };
+
+    openAnkiWeb = () => {
+        window.open('https://ankiweb.net/shared/decks', '_blank');
+    };
+
     render() {
-        const { decks, loading, error, success, newDeckName, showCreateForm, showImportForm, shareToken } = this.state;
+        const { decks, loading, error, success, newDeckName, showCreateForm, showImportForm, showAnkiImport, shareToken, ankiFile, ankiImporting } = this.state;
 
         if (loading) {
             return <div style={{ textAlign: 'center', marginTop: '50px' }}>로딩 중...</div>;
@@ -105,8 +163,8 @@ class DeckList extends Component {
 
                 <Statistics />
 
-                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
-                    {!showCreateForm && !showImportForm && (
+                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    {!showCreateForm && !showImportForm && !showAnkiImport && (
                         <>
                             <button
                                 onClick={() => this.setState({ showCreateForm: true })}
@@ -119,6 +177,12 @@ class DeckList extends Component {
                                 style={{ padding: '10px 20px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                             >
                                 <span role="img" aria-label="받기">📥</span> 공유된 덱 받기
+                            </button>
+                            <button
+                                onClick={() => this.setState({ showAnkiImport: true })}
+                                style={{ padding: '10px 20px', backgroundColor: '#6f42c1', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                <span role="img" aria-label="Anki">🃏</span> Anki 덱 가져오기
                             </button>
                         </>
                     )}
@@ -182,6 +246,91 @@ class DeckList extends Component {
                                 >
                                     취소
                                 </button>
+                            </form>
+                        </div>
+                    )}
+
+                    {showAnkiImport && (
+                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa', flex: 1, minWidth: '300px' }}>
+                            <h5><span role="img" aria-label="Anki">🃏</span> Anki 덱 가져오기</h5>
+                            <p style={{ fontSize: '14px', color: '#666', marginBottom: '15px' }}>
+                                AnkiWeb에서 .apkg 파일을 다운로드하여 업로드하세요.
+                            </p>
+                            <button
+                                type="button"
+                                onClick={this.openAnkiWeb}
+                                style={{
+                                    width: '100%',
+                                    padding: '10px',
+                                    marginBottom: '15px',
+                                    backgroundColor: '#235390',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px'
+                                }}
+                            >
+                                <span role="img" aria-label="외부 링크">🔗</span> AnkiWeb 공유 덱 둘러보기
+                            </button>
+                            <form onSubmit={this.handleAnkiImport}>
+                                <div style={{
+                                    border: '2px dashed #ccc',
+                                    borderRadius: '4px',
+                                    padding: '20px',
+                                    textAlign: 'center',
+                                    marginBottom: '10px',
+                                    backgroundColor: ankiFile ? '#e8f5e9' : '#fff'
+                                }}>
+                                    <input
+                                        type="file"
+                                        accept=".apkg"
+                                        onChange={this.handleAnkiFileChange}
+                                        style={{ display: 'none' }}
+                                        id="anki-file-input"
+                                    />
+                                    <label
+                                        htmlFor="anki-file-input"
+                                        style={{
+                                            cursor: 'pointer',
+                                            color: ankiFile ? '#2e7d32' : '#666'
+                                        }}
+                                    >
+                                        {ankiFile ? (
+                                            <><span role="img" aria-label="파일">📄</span> {ankiFile.name}</>
+                                        ) : (
+                                            <><span role="img" aria-label="업로드">📁</span> .apkg 파일을 선택하세요</>
+                                        )}
+                                    </label>
+                                </div>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <button
+                                        type="submit"
+                                        disabled={!ankiFile || ankiImporting}
+                                        style={{
+                                            flex: 1,
+                                            padding: '8px 16px',
+                                            backgroundColor: ankiFile && !ankiImporting ? '#6f42c1' : '#ccc',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            cursor: ankiFile && !ankiImporting ? 'pointer' : 'not-allowed'
+                                        }}
+                                    >
+                                        {ankiImporting ? '가져오는 중...' : '가져오기'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => this.setState({ showAnkiImport: false, ankiFile: null })}
+                                        disabled={ankiImporting}
+                                        style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    >
+                                        취소
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     )}
