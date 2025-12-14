@@ -71,7 +71,8 @@ class DeckList extends Component {
     };
 
     handleLogout = () => {
-        localStorage.clear();
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
         window.location.href = '/login';
     };
 
@@ -128,6 +129,24 @@ class DeckList extends Component {
 
     openAnkiWeb = () => {
         window.open('https://ankiweb.net/shared/decks', '_blank');
+    };
+
+    handleDeleteDeck = async (e, deckId, deckName) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!window.confirm(`"${deckName}" 덱을 삭제하시겠습니까?\n모든 카드와 학습 기록이 삭제됩니다.`)) {
+            return;
+        }
+
+        try {
+            await deckAPI.delete(deckId);
+            this.setState({ success: '덱이 삭제되었습니다.' });
+            this.loadDecks();
+            setTimeout(() => this.setState({ success: '' }), 3000);
+        } catch (err) {
+            this.setState({ error: err.message });
+        }
     };
 
     render() {
@@ -343,30 +362,53 @@ class DeckList extends Component {
                 ) : (
                     <div>
                         {decks.map(deck => (
-                            <Link
+                            <div
                                 key={deck.id}
-                                to={`/decks/${deck.id}`}
                                 style={{
-                                    display: 'block',
+                                    display: 'flex',
                                     padding: '15px',
                                     marginBottom: '10px',
                                     border: '1px solid #ddd',
                                     borderRadius: '4px',
-                                    textDecoration: 'none',
-                                    color: 'inherit',
-                                    backgroundColor: '#fff'
+                                    backgroundColor: '#fff',
+                                    alignItems: 'center'
                                 }}
                             >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <h5 style={{ margin: '0 0 5px 0' }}>{deck.name}</h5>
-                                        {deck.description && <small style={{ color: '#6c757d' }}>{deck.description}</small>}
+                                <Link
+                                    to={`/decks/${deck.id}`}
+                                    style={{
+                                        flex: 1,
+                                        textDecoration: 'none',
+                                        color: 'inherit'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <h5 style={{ margin: '0 0 5px 0' }}>{deck.name}</h5>
+                                            {deck.description && <small style={{ color: '#6c757d' }}>{deck.description}</small>}
+                                        </div>
+                                        <div style={{ color: '#6c757d' }}>
+                                            <small>{deck.card_count || 0} 카드</small>
+                                        </div>
                                     </div>
-                                    <div style={{ color: '#6c757d' }}>
-                                        <small>{deck.card_count || 0} 카드</small>
-                                    </div>
-                                </div>
-                            </Link>
+                                </Link>
+                                <button
+                                    onClick={(e) => this.handleDeleteDeck(e, deck.id, deck.name)}
+                                    style={{
+                                        marginLeft: '10px',
+                                        padding: '5px 10px',
+                                        backgroundColor: '#dc3545',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px'
+                                    }}
+                                    title="덱 삭제"
+                                >
+                                    <span role="img" aria-label="삭제">🗑️</span>
+                                </button>
+                            </div>
                         ))}
                     </div>
                 )}

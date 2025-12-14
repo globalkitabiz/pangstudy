@@ -56,14 +56,26 @@ export async function onRequestPost(context) {
     }
 }
 
-// 비밀번호 해싱
+// 비밀번호 해싱 (솔트 포함)
 async function hashPassword(password) {
+    // 16바이트 랜덤 솔트 생성
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // 솔트 + 비밀번호로 해싱 (PBKDF2 스타일 - 반복)
     const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hash = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hash))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
+    let data = encoder.encode(saltHex + password);
+
+    // 10000번 반복 해싱으로 보안 강화
+    for (let i = 0; i < 10000; i++) {
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        data = new Uint8Array(hash);
+    }
+
+    const hashHex = Array.from(data).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // 솔트:해시 형태로 저장
+    return `${saltHex}:${hashHex}`;
 }
 
 // JWT 토큰 생성 (수정된 버전)

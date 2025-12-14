@@ -26,8 +26,8 @@ export async function onRequestPost(context) {
         }
 
         // 비밀번호 확인
-        const passwordHash = await hashPassword(password);
-        if (passwordHash !== user.password_hash) {
+        const isValid = await verifyPassword(password, user.password_hash);
+        if (!isValid) {
             return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
                 status: 401,
                 headers: { 'Content-Type': 'application/json' }
@@ -62,14 +62,33 @@ export async function onRequestPost(context) {
     }
 }
 
-// 비밀번호 해싱
-async function hashPassword(password) {
+// 비밀번호 검증 (솔트 포함)
+async function verifyPassword(password, storedHash) {
+    // 기존 SHA-256 해시 형식 (솔트 없음) - 이전 버전 호환
+    if (!storedHash.includes(':')) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        const hashHex = Array.from(new Uint8Array(hash))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+        return hashHex === storedHash;
+    }
+
+    // 새로운 솔트:해시 형식
+    const [saltHex, expectedHash] = storedHash.split(':');
+
     const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hash = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hash))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
+    let data = encoder.encode(saltHex + password);
+
+    // 10000번 반복 해싱
+    for (let i = 0; i < 10000; i++) {
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        data = new Uint8Array(hash);
+    }
+
+    const hashHex = Array.from(data).map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex === expectedHash;
 }
 
 // JWT 토큰 생성 (수정된 버전)
