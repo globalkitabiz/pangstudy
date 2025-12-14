@@ -1,4 +1,3 @@
-```javascript
 // 덱 목록 컴포넌트
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
@@ -197,7 +196,7 @@ class DeckList extends Component {
                         {decks.map(deck => (
                             <Link
                                 key={deck.id}
-                                to={`/ decks / ${ deck.id } `}
+                                to={`/decks/${deck.id}`}
                                 style={{
                                     display: 'block',
                                     padding: '15px',
