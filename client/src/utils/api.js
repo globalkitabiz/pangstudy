@@ -1,37 +1,22 @@
-// API 호출 유틸리티
-const API_BASE = process.env.NODE_ENV === 'production'
-    ? '' // Cloudflare Pages에서는 같은 도메인
-    : 'http://localhost:8788'; // 로컬 개발 시 Wrangler dev 포트
+// API 유틸리티 함수
+const API_BASE_URL = '';
 
-// 인증 토큰 가져오기
-function getAuthToken() {
-    return localStorage.getItem('authToken');
-}
+// 토큰 가져오기
+const getAuthToken = () => localStorage.getItem('authToken');
 
-// API 요청 헬퍼
-async function apiRequest(endpoint, options = {}) {
+// API 요청 함수
+const apiRequest = async (endpoint, options = {}) => {
     const token = getAuthToken();
     const headers = {
         'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
     };
 
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
         headers,
     });
-
-    // 401 에러시 자동 로그아웃 및 로그인 페이지로 이동
-    if (response.status === 401) {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-        throw new Error('세션이 만료되었습니다. 다시 로그인해주세요.');
-    }
 
     if (!response.ok) {
         const error = await response.json();
@@ -39,7 +24,7 @@ async function apiRequest(endpoint, options = {}) {
     }
 
     return response.json();
-}
+};
 
 // 인증 API
 export const authAPI = {
@@ -83,12 +68,6 @@ export const deckAPI = {
             body: JSON.stringify({ name, description }),
         }),
 
-    update: (deckId, name, description) =>
-        apiRequest(`/api/decks/${deckId}`, {
-            method: 'PUT',
-            body: JSON.stringify({ name, description }),
-        }),
-
     delete: (deckId) =>
         apiRequest(`/api/decks/${deckId}`, {
             method: 'DELETE',
@@ -97,34 +76,28 @@ export const deckAPI = {
 
 // 카드 API
 export const cardAPI = {
-    getByDeck: (deckId) => apiRequest(`/api/cards/${deckId}`),
-
-    get: (cardId) => apiRequest(`/api/cards/card/${cardId}`),
-
-    create: (deckId, front, back, media_front, media_back) =>
-        apiRequest(`/api/cards/${deckId}`, {
+    create: (deckId, front, back) =>
+        apiRequest(`/api/cards`, {
             method: 'POST',
-            body: JSON.stringify({ front, back, media_front, media_back }),
+            body: JSON.stringify({ deckId, front, back }),
         }),
-
-    update: (cardId, front, back, media_front, media_back) =>
-        apiRequest(`/api/cards/card/${cardId}`, {
-            method: 'PUT',
-            body: JSON.stringify({ front, back, media_front, media_back }),
-        }),
-
+    getByDeck: (deckId) => apiRequest(`/api/decks/${deckId}/cards`),
     delete: (cardId) =>
-        apiRequest(`/api/cards/card/${cardId}`, {
+        apiRequest(`/api/cards/${cardId}`, {
             method: 'DELETE',
+        }),
+    update: (cardId, front, back) =>
+        apiRequest(`/api/cards/${cardId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ front, back }),
         }),
 };
 
 // 학습 API
 export const studyAPI = {
     getDueCards: (deckId) => apiRequest(`/api/study/${deckId}/due`),
-
     submitReview: (cardId, difficulty) =>
-        apiRequest(`/api/study/review`, {
+        apiRequest('/api/study/review', {
             method: 'POST',
             body: JSON.stringify({ cardId, difficulty }),
         }),
@@ -136,12 +109,33 @@ export const shareAPI = {
         apiRequest(`/api/decks/${deckId}/share`, {
             method: 'POST',
         }),
-
-    getSharedDeck: (shareToken) =>
-        apiRequest(`/api/shared/${shareToken}`),
-
+    getSharedDeck: (shareToken) => apiRequest(`/api/shared/${shareToken}`),
     importSharedDeck: (shareToken) =>
         apiRequest(`/api/shared/${shareToken}/import`, {
             method: 'POST',
         }),
+};
+
+// Anki 가져오기 API
+export const ankiAPI = {
+    importDeck: (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const token = getAuthToken();
+        return fetch(`${API_BASE_URL}/api/anki/import`, {
+            method: 'POST',
+            headers: {
+                ...(token && { Authorization: `Bearer ${token}` }),
+            },
+            body: formData,
+        }).then((res) => {
+            if (!res.ok) {
+                return res.json().then((error) => {
+                    throw new Error(error.error || 'Import failed');
+                });
+            }
+            return res.json();
+        });
+    },
 };
