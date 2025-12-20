@@ -3,6 +3,7 @@
 Anki 스타일의 간격 반복 학습 애플리케이션입니다. SM-2 알고리즘을 사용하여 효율적인 암기 학습을 지원합니다.
 
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-orange)](https://pangstudy.pages.dev)
+Latest deployment: https://ae39d317.pangstudy.pages.dev (deployed 2025-12-15)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## ✨ 주요 기능
