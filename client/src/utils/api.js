@@ -62,10 +62,10 @@ export const deckAPI = {
 
     get: (deckId) => apiRequest(`/api/decks/${deckId}`),
 
-    create: (name, description) =>
+    create: (name, description, metadata = {}) =>
         apiRequest('/api/decks', {
             method: 'POST',
-            body: JSON.stringify({ name, description }),
+            body: JSON.stringify({ name, description, ...metadata }),
         }),
 
     delete: (deckId) =>

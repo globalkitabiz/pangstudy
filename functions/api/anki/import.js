@@ -74,8 +74,16 @@ export async function onRequestPost(context) {
 
         // 새 덱 생성
         const deckResult = await env.DB.prepare(
-            'INSERT INTO decks (user_id, name, description) VALUES (?, ?, ?)'
-        ).bind(userId, deckName, `Anki에서 가져옴 (${cards.length}장)`).run();
+            'INSERT INTO decks (user_id, name, description, source, author, license, commercial_allowed) VALUES (?, ?, ?, ?, ?, ?, ?)'
+        ).bind(
+            userId,
+            deckName,
+            `Anki에서 가져옴 (${cards.length}장)`,
+            `Anki import: ${file.name}`,
+            null,
+            null,
+            0
+        ).run();
 
         const deckId = deckResult.meta.last_row_id;
 

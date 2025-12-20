@@ -51,7 +51,7 @@ export async function onRequestPost(context) {
     const userId = context.user.userId;
 
     try {
-        const { name, description } = await request.json();
+        const { name, description, source, author, license, commercial_allowed } = await request.json();
 
         if (!name) {
             return new Response(JSON.stringify({ error: 'Deck name is required' }), {
@@ -61,8 +61,16 @@ export async function onRequestPost(context) {
         }
 
         const result = await env.DB.prepare(
-            'INSERT INTO decks (user_id, name, description) VALUES (?, ?, ?)'
-        ).bind(userId, name, description || null).run();
+            'INSERT INTO decks (user_id, name, description, source, author, license, commercial_allowed) VALUES (?, ?, ?, ?, ?, ?, ?)'
+        ).bind(
+            userId,
+            name,
+            description || null,
+            source || null,
+            author || null,
+            license || null,
+            commercial_allowed ? 1 : 0
+        ).run();
 
         const deckId = result.meta.last_row_id;
 

@@ -40,6 +40,8 @@ function extractDecks(collection) {
                     ankiId: deckId,
                     name: deck.name,
                     description: deck.desc || '',
+                    author: null,
+                    license: null,
                 });
             }
         }

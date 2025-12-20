@@ -31,8 +31,16 @@ export async function onRequestPost(context) {
 
         // 새 덱 생성 (복사)
         const newDeckResult = await env.DB.prepare(
-            'INSERT INTO decks (user_id, name, description) VALUES (?, ?, ?)'
-        ).bind(userId, `${shared.name} (공유됨)`, shared.description).run();
+            'INSERT INTO decks (user_id, name, description, source, author, license, commercial_allowed) VALUES (?, ?, ?, ?, ?, ?, ?)'
+        ).bind(
+            userId,
+            `${shared.name} (공유됨)`,
+            shared.description,
+            shared.source || `Shared import: ${shared.id}`,
+            shared.author || null,
+            shared.license || null,
+            shared.commercial_allowed ? 1 : 0
+        ).run();
 
         const newDeckId = newDeckResult.meta.last_row_id;
 

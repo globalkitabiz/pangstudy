@@ -12,6 +12,7 @@ export function ImportDeck({ onImportComplete }) {
     const [progress, setProgress] = useState(0);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [commercialAllowed, setCommercialAllowed] = useState(false);
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -40,7 +41,15 @@ export function ImportDeck({ onImportComplete }) {
             // 2. 덱 생성
             setProgress(40);
             for (const deck of decks) {
-                const { deck: createdDeck } = await deckAPI.create(deck.name, deck.description);
+                // include metadata: source (file name) and commercial flag from user
+                const metadata = {
+                    source: `Anki import: ${file.name}`,
+                    author: deck.author || null,
+                    license: deck.license || null,
+                    commercial_allowed: commercialAllowed ? 1 : 0,
+                };
+
+                const { deck: createdDeck } = await deckAPI.create(deck.name, deck.description, metadata);
 
                 // 3. 해당 덱의 카드들 생성
                 const deckCards = cards.filter(c => c.deckId === deck.ankiId);
@@ -95,6 +104,20 @@ export function ImportDeck({ onImportComplete }) {
                         className="form-control"
                     />
                     <small className="text-muted">{t('import.fileFormat')}</small>
+                </div>
+
+                <div className="mb-3 form-check">
+                    <input
+                        id="commercialAllowed"
+                        type="checkbox"
+                        className="form-check-input"
+                        checked={commercialAllowed}
+                        onChange={(e) => setCommercialAllowed(e.target.checked)}
+                        disabled={uploading}
+                    />
+                    <label className="form-check-label" htmlFor="commercialAllowed">
+                        저는 이 덱을 상업적으로 사용할 권한이 있음을 확인합니다.
+                    </label>
                 </div>
 
                 {uploading && (
