@@ -15,12 +15,16 @@ class DeckDetail extends Component {
             showAddForm: false,
             showShareModal: false,
             showEditDeck: false,
+            showCsvImport: false,
             editingCard: null,
             shareUrl: '',
             newCard: { front: '', back: '' },
             editDeckName: '',
-            editDeckDescription: ''
+            editDeckDescription: '',
+            csvText: '',
+            csvImporting: false
         };
+        this.fileInputRef = React.createRef();
     }
 
     componentDidMount() {
@@ -129,6 +133,102 @@ class DeckDetail extends Component {
         });
     };
 
+    // CSV 파일 선택 처리
+    handleCsvFileSelect = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            this.setState({ csvText: event.target.result });
+        };
+        reader.readAsText(file, 'UTF-8');
+    };
+
+    // CSV 파싱 및 카드 생성
+    handleCsvImport = async () => {
+        const { csvText } = this.state;
+        const { deckId } = this.props.match.params;
+
+        if (!csvText.trim()) {
+            this.setState({ error: 'CSV 내용을 입력하거나 파일을 선택해주세요.' });
+            return;
+        }
+
+        this.setState({ csvImporting: true, error: '' });
+
+        try {
+            // CSV 파싱
+            const lines = csvText.trim().split('\n');
+            const cards = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                // 첫 줄이 헤더인지 확인 (front,back)
+                if (i === 0 && line.toLowerCase().includes('front') && line.toLowerCase().includes('back')) {
+                    continue; // 헤더 건너뛰기
+                }
+
+                // 쉼표로 분리 (따옴표 안의 쉼표는 무시)
+                const parts = this.parseCsvLine(line);
+
+                if (parts.length >= 2) {
+                    const front = parts[0].trim();
+                    const back = parts[1].trim();
+
+                    if (front && back) {
+                        cards.push({ front, back });
+                    }
+                }
+            }
+
+            if (cards.length === 0) {
+                this.setState({ error: '유효한 카드가 없습니다. 형식: 앞면,뒷면', csvImporting: false });
+                return;
+            }
+
+            // API 호출 - bulk create
+            await cardAPI.bulkCreate(deckId, cards);
+
+            this.setState({
+                showCsvImport: false,
+                csvText: '',
+                success: `${cards.length}개의 카드가 추가되었습니다!`,
+                csvImporting: false
+            });
+            this.loadDeckAndCards();
+            setTimeout(() => this.setState({ success: '' }), 3000);
+
+        } catch (err) {
+            this.setState({ error: err.message || 'CSV 가져오기 실패', csvImporting: false });
+        }
+    };
+
+    // CSV 라인 파싱 (따옴표 처리)
+    parseCsvLine = (line) => {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.replace(/^"|"$/g, ''));
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        result.push(current.replace(/^"|"$/g, ''));
+
+        return result;
+    };
+
     handleUpdateCard = async (e) => {
         e.preventDefault();
         const { editingCard } = this.state;
@@ -149,7 +249,7 @@ class DeckDetail extends Component {
     };
 
     render() {
-        const { deck, cards, loading, error, success, showAddForm, showShareModal, showEditDeck, editingCard, shareUrl, newCard, editDeckName, editDeckDescription } = this.state;
+        const { deck, cards, loading, error, success, showAddForm, showShareModal, showEditDeck, showCsvImport, editingCard, shareUrl, newCard, editDeckName, editDeckDescription, csvText, csvImporting } = this.state;
 
         if (loading) {
             return <div style={{ textAlign: 'center', marginTop: '50px' }}>로딩 중...</div>;
@@ -288,14 +388,66 @@ class DeckDetail extends Component {
                     </div>
                 )}
 
-                <div style={{ marginBottom: '20px' }}>
-                    {!showAddForm ? (
-                        <button
-                            onClick={() => this.setState({ showAddForm: true })}
-                            style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                            + 카드 추가
-                        </button>
+                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+                    {!showAddForm && !showCsvImport ? (
+                        <>
+                            <button
+                                onClick={() => this.setState({ showAddForm: true, showCsvImport: false })}
+                                style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                + 카드 추가
+                            </button>
+                            <button
+                                onClick={() => this.setState({ showCsvImport: true, showAddForm: false })}
+                                style={{ padding: '10px 20px', backgroundColor: '#17a2b8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                CSV 가져오기
+                            </button>
+                        </>
+                    ) : showCsvImport ? (
+                        <div style={{ width: '100%', padding: '15px', border: '1px solid #17a2b8', borderRadius: '4px', backgroundColor: '#e7f5f7' }}>
+                            <h5 style={{ marginBottom: '10px' }}>CSV로 카드 일괄 추가</h5>
+                            <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
+                                형식: <code>앞면,뒷면</code> (한 줄에 하나씩)<br/>
+                                예시: <code>apple,사과</code>
+                            </p>
+
+                            <div style={{ marginBottom: '10px' }}>
+                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>CSV 파일 선택</label>
+                                <input
+                                    type="file"
+                                    accept=".csv,.txt"
+                                    onChange={this.handleCsvFileSelect}
+                                    ref={this.fileInputRef}
+                                    style={{ marginBottom: '10px' }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '10px' }}>
+                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>또는 직접 입력</label>
+                                <textarea
+                                    rows={8}
+                                    placeholder={"apple,사과\nbanana,바나나\nhappiness,행복"}
+                                    value={csvText}
+                                    onChange={(e) => this.setState({ csvText: e.target.value })}
+                                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontFamily: 'monospace', fontSize: '13px' }}
+                                />
+                            </div>
+
+                            <button
+                                onClick={this.handleCsvImport}
+                                disabled={csvImporting || !csvText.trim()}
+                                style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: csvImporting ? 'not-allowed' : 'pointer', opacity: csvImporting ? 0.7 : 1 }}
+                            >
+                                {csvImporting ? '가져오는 중...' : '가져오기'}
+                            </button>
+                            <button
+                                onClick={() => this.setState({ showCsvImport: false, csvText: '' })}
+                                style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                취소
+                            </button>
+                        </div>
                     ) : (
                         <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                             <h5>새 카드 추가</h5>
