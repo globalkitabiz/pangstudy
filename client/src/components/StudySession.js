@@ -2,8 +2,10 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { studyAPI } from '../utils/api';
+import { ThemeContext } from '../contexts/ThemeContext';
 
 class StudySession extends Component {
+    static contextType = ThemeContext;
     constructor(props) {
         super(props);
         this.state = {
@@ -225,26 +227,27 @@ class StudySession extends Component {
     render() {
         const { cards, currentIndex, showAnswer, loading, error, completed, stats } = this.state;
         const { deckId } = this.props.match.params;
+        const { colors } = this.context || {};
 
         if (loading) {
-            return <div style={{ textAlign: 'center', marginTop: '50px' }}>로딩 중...</div>;
+            return <div style={{ textAlign: 'center', marginTop: '50px', color: colors?.text }}>로딩 중...</div>;
         }
 
         if (completed) {
             return (
-                <div style={{ maxWidth: '600px', margin: '50px auto', padding: '30px', textAlign: 'center', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#fff' }}>
-                    <h2>학습 완료!</h2>
-                    <p style={{ fontSize: '18px', marginTop: '20px' }}>오늘의 학습을 모두 마쳤습니다.</p>
+                <div style={{ maxWidth: '600px', margin: '50px auto', padding: '30px', textAlign: 'center', border: `1px solid ${colors?.cardBorder || '#ddd'}`, borderRadius: '8px', backgroundColor: colors?.cardBackground || '#fff' }}>
+                    <h2 style={{ color: colors?.text }}>학습 완료!</h2>
+                    <p style={{ fontSize: '18px', marginTop: '20px', color: colors?.text }}>오늘의 학습을 모두 마쳤습니다.</p>
 
-                    <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-                        <h4>학습 통계</h4>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px' }}>
+                    <div style={{ marginTop: '30px', padding: '20px', backgroundColor: colors?.backgroundSecondary || '#f8f9fa', borderRadius: '4px' }}>
+                        <h4 style={{ color: colors?.text }}>학습 통계</h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px', color: colors?.text }}>
                             <div><strong>다시:</strong> {stats.again}</div>
                             <div><strong>어려움:</strong> {stats.hard}</div>
                             <div><strong>보통:</strong> {stats.good}</div>
                             <div><strong>쉬움:</strong> {stats.easy}</div>
                         </div>
-                        <div style={{ marginTop: '15px', fontSize: '20px', fontWeight: 'bold' }}>
+                        <div style={{ marginTop: '15px', fontSize: '20px', fontWeight: 'bold', color: colors?.text }}>
                             총 {stats.again + stats.hard + stats.good + stats.easy}개 카드 학습
                         </div>
                     </div>
@@ -252,13 +255,13 @@ class StudySession extends Component {
                     <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
                         <button
                             onClick={() => this.props.history.push(`/decks/${deckId}`)}
-                            style={{ padding: '12px 24px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}
+                            style={{ padding: '12px 24px', backgroundColor: colors?.buttonPrimary || '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}
                         >
                             덱으로 돌아가기
                         </button>
                         <button
                             onClick={() => this.props.history.push('/decks')}
-                            style={{ padding: '12px 24px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}
+                            style={{ padding: '12px 24px', backgroundColor: colors?.buttonSecondary || '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}
                         >
                             덱 목록으로
                         </button>
@@ -271,18 +274,18 @@ class StudySession extends Component {
         const progress = ((currentIndex + 1) / cards.length) * 100;
 
         return (
-            <div style={{ maxWidth: '600px', margin: '20px auto', padding: '20px' }}>
-                <h2>학습 세션</h2>
+            <div style={{ maxWidth: '600px', margin: '20px auto', padding: '20px', backgroundColor: colors?.background, minHeight: '100vh' }}>
+                <h2 style={{ color: colors?.text }}>학습 세션</h2>
 
                 {/* 단축키 안내 및 음성 설정 */}
                 <div style={{
                     padding: '10px',
                     marginBottom: '20px',
-                    backgroundColor: '#e7f3ff',
-                    border: '1px solid #b3d9ff',
+                    backgroundColor: colors?.alertInfo?.bg || '#e7f3ff',
+                    border: `1px solid ${colors?.alertInfo?.border || '#b3d9ff'}`,
                     borderRadius: '4px',
                     fontSize: '12px',
-                    color: '#004085'
+                    color: colors?.alertInfo?.text || '#004085'
                 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                         <span>
@@ -294,7 +297,7 @@ class StudySession extends Component {
                                 onClick={() => this.setState({ voiceGender: this.state.voiceGender === 'female' ? 'male' : 'female' })}
                                 style={{
                                     padding: '5px 10px',
-                                    backgroundColor: this.state.voiceGender === 'female' ? '#e83e8c' : '#007bff',
+                                    backgroundColor: this.state.voiceGender === 'female' ? '#e83e8c' : colors?.buttonPrimary || '#007bff',
                                     color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
@@ -310,7 +313,7 @@ class StudySession extends Component {
                                 onClick={() => this.setState({ autoSpeak: !this.state.autoSpeak })}
                                 style={{
                                     padding: '5px 10px',
-                                    backgroundColor: this.state.autoSpeak ? '#28a745' : '#6c757d',
+                                    backgroundColor: this.state.autoSpeak ? colors?.buttonSuccess || '#28a745' : colors?.buttonSecondary || '#6c757d',
                                     color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
@@ -325,18 +328,18 @@ class StudySession extends Component {
                     </div>
                 </div>
                 {error && (
-                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb', borderRadius: '4px' }}>
+                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: colors?.alertDanger?.bg || '#f8d7da', color: colors?.alertDanger?.text || '#721c24', border: `1px solid ${colors?.alertDanger?.border || '#f5c6cb'}`, borderRadius: '4px' }}>
                         {error}
                     </div>
                 )}
 
                 <div style={{ marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', color: colors?.text }}>
                         <span>{currentIndex + 1} / {cards.length}</span>
                         <span>{Math.round(progress)}%</span>
                     </div>
-                    <div style={{ width: '100%', height: '8px', backgroundColor: '#e9ecef', borderRadius: '4px', overflow: 'hidden' }}>
-                        <div style={{ width: `${progress}%`, height: '100%', backgroundColor: '#007bff', transition: 'width 0.3s' }} />
+                    <div style={{ width: '100%', height: '8px', backgroundColor: colors?.borderLight || '#e9ecef', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ width: `${progress}%`, height: '100%', backgroundColor: colors?.primary || '#007bff', transition: 'width 0.3s' }} />
                     </div>
                 </div>
 
@@ -344,9 +347,9 @@ class StudySession extends Component {
                     style={{
                         minHeight: '300px',
                         padding: '40px',
-                        border: '2px solid #007bff',
+                        border: `2px solid ${colors?.primary || '#007bff'}`,
                         borderRadius: '8px',
-                        backgroundColor: '#fff',
+                        backgroundColor: colors?.cardBackground || '#fff',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -358,13 +361,13 @@ class StudySession extends Component {
                     <div style={{ textAlign: 'center', width: '100%' }}>
                         {!showAnswer ? (
                             <>
-                                <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                                <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: colors?.text }}>
                                     <span>{currentCard.front}</span>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); this.speakCurrentCard('front'); }}
                                         style={{
                                             padding: '8px 12px',
-                                            backgroundColor: this.state.speaking ? '#ffc107' : '#17a2b8',
+                                            backgroundColor: this.state.speaking ? colors?.warning || '#ffc107' : colors?.info || '#17a2b8',
                                             color: '#fff',
                                             border: 'none',
                                             borderRadius: '50%',
@@ -376,19 +379,19 @@ class StudySession extends Component {
                                         {this.state.speaking ? '...' : <span role="img" aria-label="speaker">&#128266;</span>}
                                     </button>
                                 </div>
-                                <div style={{ color: '#6c757d', marginTop: '30px' }}>
+                                <div style={{ color: colors?.textSecondary || '#6c757d', marginTop: '30px' }}>
                                     클릭하여 답변 보기
                                 </div>
                             </>
                         ) : (
                             <>
-                                <div style={{ fontSize: '20px', color: '#6c757d', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                                <div style={{ fontSize: '20px', color: colors?.textSecondary || '#6c757d', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                                     <span>{currentCard.front}</span>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); this.speakCurrentCard('front'); }}
                                         style={{
                                             padding: '5px 8px',
-                                            backgroundColor: '#6c757d',
+                                            backgroundColor: colors?.buttonSecondary || '#6c757d',
                                             color: '#fff',
                                             border: 'none',
                                             borderRadius: '50%',
@@ -400,14 +403,14 @@ class StudySession extends Component {
                                         <span role="img" aria-label="speaker">&#128266;</span>
                                     </button>
                                 </div>
-                                <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #dee2e6' }} />
-                                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                                <hr style={{ margin: '20px 0', border: 'none', borderTop: `1px solid ${colors?.border || '#dee2e6'}` }} />
+                                <div style={{ fontSize: '24px', fontWeight: 'bold', color: colors?.success || '#28a745', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                                     <span>{currentCard.back}</span>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); this.speakCurrentCard('back'); }}
                                         style={{
                                             padding: '8px 12px',
-                                            backgroundColor: this.state.speaking ? '#ffc107' : '#28a745',
+                                            backgroundColor: this.state.speaking ? colors?.warning || '#ffc107' : colors?.buttonSuccess || '#28a745',
                                             color: '#fff',
                                             border: 'none',
                                             borderRadius: '50%',
@@ -428,28 +431,28 @@ class StudySession extends Component {
                     <div style={{ marginTop: '30px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
                         <button
                             onClick={() => this.handleAnswer(0)}
-                            style={{ padding: '15px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
+                            style={{ padding: '15px', backgroundColor: colors?.danger || '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
                         >
                             <div style={{ fontWeight: 'bold' }}>다시</div>
                             <div style={{ fontSize: '12px', marginTop: '5px' }}>&lt;1분</div>
                         </button>
                         <button
                             onClick={() => this.handleAnswer(1)}
-                            style={{ padding: '15px', backgroundColor: '#fd7e14', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
+                            style={{ padding: '15px', backgroundColor: colors?.warning || '#fd7e14', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
                         >
                             <div style={{ fontWeight: 'bold' }}>어려움</div>
                             <div style={{ fontSize: '12px', marginTop: '5px' }}>1일</div>
                         </button>
                         <button
                             onClick={() => this.handleAnswer(2)}
-                            style={{ padding: '15px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
+                            style={{ padding: '15px', backgroundColor: colors?.success || '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
                         >
                             <div style={{ fontWeight: 'bold' }}>보통</div>
                             <div style={{ fontSize: '12px', marginTop: '5px' }}>3일</div>
                         </button>
                         <button
                             onClick={() => this.handleAnswer(3)}
-                            style={{ padding: '15px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
+                            style={{ padding: '15px', backgroundColor: colors?.primary || '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
                         >
                             <div style={{ fontWeight: 'bold' }}>쉬움</div>
                             <div style={{ fontSize: '12px', marginTop: '5px' }}>7일</div>

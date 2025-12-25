@@ -3,14 +3,20 @@ import { Link } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 import { authAPI } from '../utils/api';
 import LanguageSelector from './LanguageSelector';
+import ThemeToggle from './ThemeToggle';
+import { ThemeContext } from '../contexts/ThemeContext';
 import './Layout.css';
 
 class Layout extends Component {
+  static contextType = ThemeContext;
+
   render() {
     const { t } = this.props;
     const user = authAPI.getUser();
+    const { theme } = this.context || {};
+
     return (
-      <div className="layout-container">
+      <div className={`layout-container ${theme === 'dark' ? 'dark-theme' : ''}`}>
         <header className="layout-header">
           <div className="header-content">
             {/* Logo - Left */}
@@ -26,8 +32,9 @@ class Layout extends Component {
               {user && user.is_admin && <Link to="/admin" className="nav-link">{t('nav.admin')}</Link>}
             </nav>
 
-            {/* Right Section - Language & Auth */}
+            {/* Right Section - Theme, Language & Auth */}
             <div className="header-right">
+              <ThemeToggle />
               <LanguageSelector />
               {user ? (
                 <button

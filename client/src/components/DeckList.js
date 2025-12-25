@@ -1,10 +1,10 @@
 // 덱 목록 컴포넌트
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { withTranslation } from 'react-i18next';
 import { deckAPI, shareAPI } from '../utils/api';
 import Statistics from './Statistics';
 import LoadingSpinner from './LoadingSpinner';
-import ThemeToggle from './ThemeToggle';
 import { ThemeContext } from '../contexts/ThemeContext';
 import JSZip from 'jszip';
 // sql.js는 CDN에서 동적 로드 (호환성 문제 해결)
@@ -42,11 +42,6 @@ class DeckList extends Component {
         } catch (err) {
             this.setState({ error: err.message, loading: false });
         }
-    };
-
-    handleLogout = () => {
-        localStorage.clear();
-        window.location.href = '/login';
     };
 
     handleCreateDeck = async (e) => {
@@ -264,17 +259,8 @@ class DeckList extends Component {
 
         return (
             <div style={{ maxWidth: '800px', margin: '20px auto', padding: '20px', backgroundColor: colors.background, color: colors.text, minHeight: '100vh' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
                     <h2 style={{ color: colors.text }}>내 덱</h2>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <ThemeToggle />
-                        <button
-                            onClick={this.handleLogout}
-                            style={{ padding: '8px 16px', backgroundColor: colors.buttonDanger, color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                            로그아웃
-                        </button>
-                    </div>
                 </div>
 
                 {error && (
@@ -556,4 +542,4 @@ class DeckList extends Component {
     }
 }
 
-export default DeckList;
+export default withTranslation(['common', 'deck'])(DeckList);

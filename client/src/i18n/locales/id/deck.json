@@ -3,27 +3,40 @@
     "title": "Dek Saya",
     "empty": "Belum ada dek. Buat dek baru atau impor dek yang dibagikan!",
     "cardCount": "{{count}} kartu",
-    "dueCount": "Hari ini: {{count}}"
+    "dueCount": "Hari ini: {{count}}",
+    "searchPlaceholder": "Cari dek (nama atau deskripsi)...",
+    "sortNewest": "Terbaru",
+    "sortName": "Nama",
+    "sortCards": "Jumlah kartu",
+    "noSearchResults": "Tidak ada hasil pencarian.",
+    "cards": "kartu"
   },
   "create": {
     "title": "Buat Dek Baru",
     "name": "Nama Dek",
     "description": "Deskripsi (opsional)",
-    "submit": "Buat"
+    "submit": "Buat",
+    "success": "Dek berhasil dibuat!"
   },
   "import": {
     "title": "Impor Dek Anki",
     "description": "Unggah file Anki (.apkg) untuk mengimpor dek.",
     "howTo": "Cara mendapatkan dek Anki:",
-    "step1": "Cari dek di situs AnkiWeb",
+    "step1": "Cari dek di situs dek bersama AnkiWeb",
     "step2": "Unduh file .apkg",
-    "step3": "Unggah file di bawah",
-    "openAnkiWeb": "Buka AnkiWeb",
-    "selectFile": "Pilih File",
+    "step3": "Unggah file di bawah ini",
+    "openAnkiWeb": "Buka Dek Bersama AnkiWeb",
+    "selectFile": "Silakan pilih file Anki.",
     "noFile": "Tidak ada file dipilih",
     "fileType": "Hanya file .apkg yang didukung.",
     "importing": "Mengimpor...",
-    "submit": "Impor"
+    "submit": "Impor",
+    "success": "Dek berhasil diimpor!",
+    "importedCards": "Dek diimpor!",
+    "failed": "Gagal mengimpor file Anki",
+    "noDatabase": "Database Anki tidak ditemukan.",
+    "noCards": "Tidak ada kartu untuk diimpor.",
+    "noValidCards": "Tidak ada kartu yang valid ditemukan."
   },
   "detail": {
     "cards": "Kartu",
@@ -31,9 +44,12 @@
     "study": "Belajar",
     "share": "Bagikan",
     "delete": "Hapus Dek",
-    "confirmDelete": "Apakah Anda yakin ingin menghapus dek ini?",
+    "confirmDelete": "Apakah Anda yakin ingin menghapus dek ini?\nSemua kartu dan catatan belajar akan dihapus.",
     "editDeck": "Edit Dek",
     "deckInfo": "Info Dek"
+  },
+  "delete": {
+    "success": "Dek berhasil dihapus."
   },
   "card": {
     "front": "Depan",
@@ -45,10 +61,13 @@
   },
   "share": {
     "title": "Bagikan Dek",
-    "link": "Tautan Berbagi",
-    "copy": "Salin Tautan",
+    "link": "Link Berbagi",
+    "copy": "Salin Link",
     "copied": "Disalin!",
-    "generate": "Buat Tautan",
-    "expire": "Kedaluwarsa dalam 7 hari"
+    "generate": "Buat Link",
+    "expire": "Kedaluwarsa dalam 7 hari",
+    "importShared": "Impor Dek Bersama",
+    "importDescription": "Masukkan link atau token dek yang dibagikan pengguna Pangstudy.",
+    "tokenPlaceholder": "Masukkan link atau token berbagi"
   }
 }

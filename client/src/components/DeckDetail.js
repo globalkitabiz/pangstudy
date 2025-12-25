@@ -2,8 +2,10 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { deckAPI, cardAPI, shareAPI } from '../utils/api';
+import { ThemeContext } from '../contexts/ThemeContext';
 
 class DeckDetail extends Component {
+    static contextType = ThemeContext;
     constructor(props) {
         super(props);
         this.state = {
@@ -250,13 +252,14 @@ class DeckDetail extends Component {
 
     render() {
         const { deck, cards, loading, error, success, showAddForm, showShareModal, showEditDeck, showCsvImport, editingCard, shareUrl, newCard, editDeckName, editDeckDescription, csvText, csvImporting } = this.state;
+        const { colors } = this.context || {};
 
         if (loading) {
-            return <div style={{ textAlign: 'center', marginTop: '50px' }}>로딩 중...</div>;
+            return <div style={{ textAlign: 'center', marginTop: '50px', color: colors?.text }}>로딩 중...</div>;
         }
 
         return (
-            <div style={{ maxWidth: '800px', margin: '20px auto', padding: '20px' }}>
+            <div style={{ maxWidth: '800px', margin: '20px auto', padding: '20px', backgroundColor: colors?.background, minHeight: '100vh' }}>
                 <div style={{ marginBottom: '20px' }}>
                     <Link
                         to="/decks"
@@ -264,7 +267,7 @@ class DeckDetail extends Component {
                             display: 'inline-block',
                             padding: '8px 16px',
                             marginBottom: '15px',
-                            backgroundColor: '#6c757d',
+                            backgroundColor: colors?.buttonSecondary || '#6c757d',
                             color: '#fff',
                             textDecoration: 'none',
                             borderRadius: '4px'
@@ -275,51 +278,51 @@ class DeckDetail extends Component {
                     {!showEditDeck ? (
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <h2 style={{ margin: '0 0 5px 0' }}>{deck && deck.name}</h2>
-                                {deck && deck.description && <p style={{ color: '#6c757d', margin: 0 }}>{deck.description}</p>}
+                                <h2 style={{ margin: '0 0 5px 0', color: colors?.text }}>{deck && deck.name}</h2>
+                                {deck && deck.description && <p style={{ color: colors?.textSecondary || '#6c757d', margin: 0 }}>{deck.description}</p>}
                             </div>
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 <button
                                     onClick={() => this.props.history.push(`/study/${deck.id}`)}
-                                    style={{ padding: '8px 16px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', backgroundColor: colors?.buttonSuccess || '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     <span role="img" aria-label="책">📚</span> 학습
                                 </button>
                                 <button
                                     onClick={() => this.setState({ showEditDeck: true })}
-                                    style={{ padding: '8px 16px', backgroundColor: '#ffc107', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', backgroundColor: colors?.warning || '#ffc107', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     <span role="img" aria-label="수정">✏️</span>
                                 </button>
                                 <button
                                     onClick={this.handleShareDeck}
-                                    style={{ padding: '8px 16px', backgroundColor: '#17a2b8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', backgroundColor: colors?.info || '#17a2b8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     <span role="img" aria-label="공유">📤</span>
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        <form onSubmit={this.handleEditDeck} style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
-                            <h5>덱 수정</h5>
+                        <form onSubmit={this.handleEditDeck} style={{ padding: '15px', border: `1px solid ${colors?.cardBorder || '#ddd'}`, borderRadius: '4px', backgroundColor: colors?.backgroundSecondary || '#f8f9fa' }}>
+                            <h5 style={{ color: colors?.text }}>덱 수정</h5>
                             <input
                                 type="text"
                                 placeholder="덱 이름"
                                 value={editDeckName}
                                 onChange={(e) => this.setState({ editDeckName: e.target.value })}
-                                style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+                                style={{ width: '100%', padding: '8px', marginBottom: '10px', border: `1px solid ${colors?.inputBorder || '#ddd'}`, borderRadius: '4px', backgroundColor: colors?.inputBackground || '#fff', color: colors?.text }}
                             />
                             <textarea
                                 placeholder="설명 (선택)"
                                 value={editDeckDescription}
                                 onChange={(e) => this.setState({ editDeckDescription: e.target.value })}
                                 rows={2}
-                                style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+                                style={{ width: '100%', padding: '8px', marginBottom: '10px', border: `1px solid ${colors?.inputBorder || '#ddd'}`, borderRadius: '4px', backgroundColor: colors?.inputBackground || '#fff', color: colors?.text }}
                             />
-                            <button type="submit" style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                            <button type="submit" style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: colors?.buttonPrimary || '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
                                 저장
                             </button>
-                            <button type="button" onClick={() => this.setState({ showEditDeck: false, editDeckName: deck.name, editDeckDescription: deck.description || '' })} style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                            <button type="button" onClick={() => this.setState({ showEditDeck: false, editDeckName: deck.name, editDeckDescription: deck.description || '' })} style={{ padding: '8px 16px', backgroundColor: colors?.buttonSecondary || '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
                                 취소
                             </button>
                         </form>
@@ -327,13 +330,13 @@ class DeckDetail extends Component {
                 </div>
 
                 {error && (
-                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb', borderRadius: '4px' }}>
+                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: colors?.alertDanger?.bg || '#f8d7da', color: colors?.alertDanger?.text || '#721c24', border: `1px solid ${colors?.alertDanger?.border || '#f5c6cb'}`, borderRadius: '4px' }}>
                         {error}
                     </div>
                 )}
 
                 {success && (
-                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: '#d4edda', color: '#155724', border: '1px solid #c3e6cb', borderRadius: '4px' }}>
+                    <div style={{ padding: '10px', marginBottom: '15px', backgroundColor: colors?.alertSuccess?.bg || '#d4edda', color: colors?.alertSuccess?.text || '#155724', border: `1px solid ${colors?.alertSuccess?.border || '#c3e6cb'}`, borderRadius: '4px' }}>
                         {success}
                     </div>
                 )}
@@ -352,34 +355,35 @@ class DeckDetail extends Component {
                         zIndex: 1000
                     }}>
                         <div style={{
-                            backgroundColor: '#fff',
+                            backgroundColor: colors?.cardBackground || '#fff',
                             padding: '30px',
                             borderRadius: '8px',
                             maxWidth: '500px',
                             width: '90%'
                         }}>
-                            <h3>덱 공유 링크</h3>
-                            <p>이 링크를 공유하면 다른 사람이 이 덱을 가져갈 수 있습니다:</p>
+                            <h3 style={{ color: colors?.text }}>덱 공유 링크</h3>
+                            <p style={{ color: colors?.text }}>이 링크를 공유하면 다른 사람이 이 덱을 가져갈 수 있습니다:</p>
                             <div style={{
                                 padding: '10px',
-                                backgroundColor: '#f8f9fa',
-                                border: '1px solid #ddd',
+                                backgroundColor: colors?.backgroundSecondary || '#f8f9fa',
+                                border: `1px solid ${colors?.cardBorder || '#ddd'}`,
                                 borderRadius: '4px',
                                 marginBottom: '15px',
-                                wordBreak: 'break-all'
+                                wordBreak: 'break-all',
+                                color: colors?.text
                             }}>
                                 {shareUrl}
                             </div>
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 <button
                                     onClick={this.handleCopyShareLink}
-                                    style={{ flex: 1, padding: '10px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ flex: 1, padding: '10px', backgroundColor: colors?.buttonSuccess || '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     <span role="img" aria-label="복사">📋</span> 링크 복사
                                 </button>
                                 <button
                                     onClick={() => this.setState({ showShareModal: false })}
-                                    style={{ flex: 1, padding: '10px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ flex: 1, padding: '10px', backgroundColor: colors?.buttonSecondary || '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     닫기
                                 </button>
@@ -393,27 +397,27 @@ class DeckDetail extends Component {
                         <>
                             <button
                                 onClick={() => this.setState({ showAddForm: true, showCsvImport: false })}
-                                style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                style={{ padding: '10px 20px', backgroundColor: colors?.buttonPrimary || '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                             >
                                 + 카드 추가
                             </button>
                             <button
                                 onClick={() => this.setState({ showCsvImport: true, showAddForm: false })}
-                                style={{ padding: '10px 20px', backgroundColor: '#17a2b8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                style={{ padding: '10px 20px', backgroundColor: colors?.info || '#17a2b8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                             >
                                 CSV 가져오기
                             </button>
                         </>
                     ) : showCsvImport ? (
-                        <div style={{ width: '100%', padding: '15px', border: '1px solid #17a2b8', borderRadius: '4px', backgroundColor: '#e7f5f7' }}>
-                            <h5 style={{ marginBottom: '10px' }}>CSV로 카드 일괄 추가</h5>
-                            <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
+                        <div style={{ width: '100%', padding: '15px', border: `1px solid ${colors?.info || '#17a2b8'}`, borderRadius: '4px', backgroundColor: colors?.alertInfo?.bg || '#e7f5f7' }}>
+                            <h5 style={{ marginBottom: '10px', color: colors?.text }}>CSV로 카드 일괄 추가</h5>
+                            <p style={{ fontSize: '14px', color: colors?.textSecondary || '#666', marginBottom: '10px' }}>
                                 형식: <code>앞면,뒷면</code> (한 줄에 하나씩)<br/>
                                 예시: <code>apple,사과</code>
                             </p>
 
                             <div style={{ marginBottom: '10px' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>CSV 파일 선택</label>
+                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: colors?.text }}>CSV 파일 선택</label>
                                 <input
                                     type="file"
                                     accept=".csv,.txt"
@@ -424,65 +428,65 @@ class DeckDetail extends Component {
                             </div>
 
                             <div style={{ marginBottom: '10px' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>또는 직접 입력</label>
+                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: colors?.text }}>또는 직접 입력</label>
                                 <textarea
                                     rows={8}
                                     placeholder={"apple,사과\nbanana,바나나\nhappiness,행복"}
                                     value={csvText}
                                     onChange={(e) => this.setState({ csvText: e.target.value })}
-                                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontFamily: 'monospace', fontSize: '13px' }}
+                                    style={{ width: '100%', padding: '8px', border: `1px solid ${colors?.inputBorder || '#ddd'}`, borderRadius: '4px', fontFamily: 'monospace', fontSize: '13px', backgroundColor: colors?.inputBackground || '#fff', color: colors?.text }}
                                 />
                             </div>
 
                             <button
                                 onClick={this.handleCsvImport}
                                 disabled={csvImporting || !csvText.trim()}
-                                style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: csvImporting ? 'not-allowed' : 'pointer', opacity: csvImporting ? 0.7 : 1 }}
+                                style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: colors?.buttonSuccess || '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: csvImporting ? 'not-allowed' : 'pointer', opacity: csvImporting ? 0.7 : 1 }}
                             >
                                 {csvImporting ? '가져오는 중...' : '가져오기'}
                             </button>
                             <button
                                 onClick={() => this.setState({ showCsvImport: false, csvText: '' })}
-                                style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                style={{ padding: '8px 16px', backgroundColor: colors?.buttonSecondary || '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                             >
                                 취소
                             </button>
                         </div>
                     ) : (
-                        <div style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
-                            <h5>새 카드 추가</h5>
+                        <div style={{ padding: '15px', border: `1px solid ${colors?.cardBorder || '#ddd'}`, borderRadius: '4px', backgroundColor: colors?.backgroundSecondary || '#f8f9fa' }}>
+                            <h5 style={{ color: colors?.text }}>새 카드 추가</h5>
                             <form onSubmit={this.handleAddCard}>
                                 <div style={{ marginBottom: '15px' }}>
-                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>앞면 (질문)</label>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: colors?.text }}>앞면 (질문)</label>
                                     <textarea
                                         rows={3}
                                         placeholder="예: Hello"
                                         value={newCard.front}
                                         onChange={(e) => this.setState({ newCard: { ...newCard, front: e.target.value } })}
                                         autoFocus
-                                        style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
+                                        style={{ width: '100%', padding: '8px', border: `1px solid ${colors?.inputBorder || '#ddd'}`, borderRadius: '4px', fontSize: '14px', backgroundColor: colors?.inputBackground || '#fff', color: colors?.text }}
                                     />
                                 </div>
                                 <div style={{ marginBottom: '15px' }}>
-                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>뒷면 (답변)</label>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: colors?.text }}>뒷면 (답변)</label>
                                     <textarea
                                         rows={3}
                                         placeholder="예: 안녕하세요"
                                         value={newCard.back}
                                         onChange={(e) => this.setState({ newCard: { ...newCard, back: e.target.value } })}
-                                        style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
+                                        style={{ width: '100%', padding: '8px', border: `1px solid ${colors?.inputBorder || '#ddd'}`, borderRadius: '4px', fontSize: '14px', backgroundColor: colors?.inputBackground || '#fff', color: colors?.text }}
                                     />
                                 </div>
                                 <button
                                     type="submit"
-                                    style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: colors?.buttonPrimary || '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     추가
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => this.setState({ showAddForm: false })}
-                                    style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', backgroundColor: colors?.buttonSecondary || '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     취소
                                 </button>
@@ -491,34 +495,34 @@ class DeckDetail extends Component {
                     )}
                 </div>
 
-                <h4 style={{ marginBottom: '15px' }}>카드 목록 ({cards.length})</h4>
+                <h4 style={{ marginBottom: '15px', color: colors?.text }}>카드 목록 ({cards.length})</h4>
 
                 {editingCard && (
-                    <div style={{ padding: '15px', marginBottom: '20px', border: '1px solid #ffc107', borderRadius: '4px', backgroundColor: '#fff3cd' }}>
-                        <h5>카드 수정</h5>
+                    <div style={{ padding: '15px', marginBottom: '20px', border: `1px solid ${colors?.warning || '#ffc107'}`, borderRadius: '4px', backgroundColor: colors?.alertWarning?.bg || '#fff3cd' }}>
+                        <h5 style={{ color: colors?.alertWarning?.text || colors?.text }}>카드 수정</h5>
                         <form onSubmit={this.handleUpdateCard}>
                             <div style={{ marginBottom: '15px' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>앞면</label>
+                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: colors?.alertWarning?.text || colors?.text }}>앞면</label>
                                 <textarea
                                     rows={3}
                                     value={editingCard.front}
                                     onChange={(e) => this.setState({ editingCard: { ...editingCard, front: e.target.value } })}
-                                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
+                                    style={{ width: '100%', padding: '8px', border: `1px solid ${colors?.inputBorder || '#ddd'}`, borderRadius: '4px', backgroundColor: colors?.inputBackground || '#fff', color: colors?.text }}
                                 />
                             </div>
                             <div style={{ marginBottom: '15px' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>뒷면</label>
+                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: colors?.alertWarning?.text || colors?.text }}>뒷면</label>
                                 <textarea
                                     rows={3}
                                     value={editingCard.back}
                                     onChange={(e) => this.setState({ editingCard: { ...editingCard, back: e.target.value } })}
-                                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
+                                    style={{ width: '100%', padding: '8px', border: `1px solid ${colors?.inputBorder || '#ddd'}`, borderRadius: '4px', backgroundColor: colors?.inputBackground || '#fff', color: colors?.text }}
                                 />
                             </div>
-                            <button type="submit" style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                            <button type="submit" style={{ padding: '8px 16px', marginRight: '10px', backgroundColor: colors?.buttonSuccess || '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
                                 저장
                             </button>
-                            <button type="button" onClick={() => this.setState({ editingCard: null })} style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                            <button type="button" onClick={() => this.setState({ editingCard: null })} style={{ padding: '8px 16px', backgroundColor: colors?.buttonSecondary || '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
                                 취소
                             </button>
                         </form>
@@ -526,7 +530,7 @@ class DeckDetail extends Component {
                 )}
 
                 {cards.length === 0 ? (
-                    <div style={{ padding: '15px', backgroundColor: '#d1ecf1', color: '#0c5460', border: '1px solid #bee5eb', borderRadius: '4px' }}>
+                    <div style={{ padding: '15px', backgroundColor: colors?.alertInfo?.bg || '#d1ecf1', color: colors?.alertInfo?.text || '#0c5460', border: `1px solid ${colors?.alertInfo?.border || '#bee5eb'}`, borderRadius: '4px' }}>
                         카드가 없습니다. 카드를 추가해보세요!
                     </div>
                 ) : (
@@ -534,10 +538,10 @@ class DeckDetail extends Component {
                         {cards.map(card => (
                             <div
                                 key={card.id}
-                                style={{ padding: '15px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#fff' }}
+                                style={{ padding: '15px', marginBottom: '10px', border: `1px solid ${colors?.cardBorder || '#ddd'}`, borderRadius: '4px', backgroundColor: colors?.cardBackground || '#fff' }}
                             >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', color: colors?.text }}>
                                         <div>
                                             <strong>앞면:</strong>
                                             <p style={{ margin: '5px 0 0 0' }}>{card.front}</p>
@@ -550,14 +554,14 @@ class DeckDetail extends Component {
                                     <div style={{ display: 'flex', gap: '5px', marginLeft: '10px' }}>
                                         <button
                                             onClick={() => this.handleEditCard(card)}
-                                            style={{ padding: '5px 10px', backgroundColor: '#ffc107', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                                            style={{ padding: '5px 10px', backgroundColor: colors?.warning || '#ffc107', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                                             title="수정"
                                         >
                                             <span role="img" aria-label="수정">✏️</span>
                                         </button>
                                         <button
                                             onClick={() => this.handleDeleteCard(card.id)}
-                                            style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                                            style={{ padding: '5px 10px', backgroundColor: colors?.danger || '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                                             title="삭제"
                                         >
                                             <span role="img" aria-label="삭제">🗑️</span>

@@ -3,13 +3,20 @@
     "title": "My Decks",
     "empty": "No decks yet. Create a new deck or import a shared deck!",
     "cardCount": "{{count}} cards",
-    "dueCount": "Due today: {{count}}"
+    "dueCount": "Due today: {{count}}",
+    "searchPlaceholder": "Search decks (name or description)...",
+    "sortNewest": "Newest",
+    "sortName": "Name",
+    "sortCards": "Card count",
+    "noSearchResults": "No search results.",
+    "cards": "cards"
   },
   "create": {
     "title": "Create New Deck",
     "name": "Deck Name",
     "description": "Description (optional)",
-    "submit": "Create"
+    "submit": "Create",
+    "success": "Deck created successfully!"
   },
   "import": {
     "title": "Import Anki Deck",
@@ -19,11 +26,17 @@
     "step2": "Download the .apkg file",
     "step3": "Upload the file below",
     "openAnkiWeb": "Open AnkiWeb Shared Decks",
-    "selectFile": "Select File",
+    "selectFile": "Please select an Anki file.",
     "noFile": "No file selected",
     "fileType": "Only .apkg files are supported.",
     "importing": "Importing...",
-    "submit": "Import"
+    "submit": "Import",
+    "success": "Deck imported successfully!",
+    "importedCards": "Deck imported!",
+    "failed": "Failed to import Anki file",
+    "noDatabase": "Anki database not found.",
+    "noCards": "No cards to import.",
+    "noValidCards": "No valid cards found."
   },
   "detail": {
     "cards": "Cards",
@@ -31,9 +44,12 @@
     "study": "Study",
     "share": "Share",
     "delete": "Delete Deck",
-    "confirmDelete": "Are you sure you want to delete this deck?",
+    "confirmDelete": "Are you sure you want to delete this deck?\nAll cards and study records will be deleted.",
     "editDeck": "Edit Deck",
     "deckInfo": "Deck Info"
+  },
+  "delete": {
+    "success": "Deck deleted successfully."
   },
   "card": {
     "front": "Front",
@@ -49,6 +65,9 @@
     "copy": "Copy Link",
     "copied": "Copied!",
     "generate": "Generate Link",
-    "expire": "Expires in 7 days"
+    "expire": "Expires in 7 days",
+    "importShared": "Import Shared Deck",
+    "importDescription": "Enter the link or token of a deck shared by a Pangstudy user.",
+    "tokenPlaceholder": "Enter share link or token"
   }
 }

@@ -4,8 +4,10 @@ import AddUserForm from './AddUserForm';
 import AssignModal from './AssignModal';
 import AdminReport from './AdminReport';
 import { adminAPI } from '../utils/api';
+import { ThemeContext } from '../contexts/ThemeContext';
 
 export class ManageUsers extends Component {
+  static contextType = ThemeContext;
   state = {
     users: [],
     showAssign: false,
@@ -96,35 +98,36 @@ export class ManageUsers extends Component {
 
   render() {
     const { users, loading, error, editingUser, newPassword } = this.state;
+    const { colors } = this.context || {};
 
     return (
-      <div className="ShowDeck">
-        <h2>Users</h2>
+      <div className="ShowDeck" style={{ backgroundColor: colors?.background, minHeight: '100vh', padding: '20px' }}>
+        <h2 style={{ color: colors?.text }}>Users</h2>
 
-        {loading && <p>Loading...</p>}
-        {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+        {loading && <p style={{ color: colors?.text }}>Loading...</p>}
+        {error && <p style={{ color: colors?.danger || 'red' }}>Error: {error}</p>}
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20, backgroundColor: colors?.cardBackground }}>
           <thead>
-            <tr style={{ borderBottom: '2px solid #ddd', textAlign: 'left' }}>
-              <th style={{ padding: 8 }}>ID</th>
-              <th style={{ padding: 8 }}>Name</th>
-              <th style={{ padding: 8 }}>Email</th>
-              <th style={{ padding: 8 }}>Admin</th>
-              <th style={{ padding: 8 }}>Actions</th>
+            <tr style={{ borderBottom: `2px solid ${colors?.border || '#ddd'}`, textAlign: 'left' }}>
+              <th style={{ padding: 8, color: colors?.text }}>ID</th>
+              <th style={{ padding: 8, color: colors?.text }}>Name</th>
+              <th style={{ padding: 8, color: colors?.text }}>Email</th>
+              <th style={{ padding: 8, color: colors?.text }}>Admin</th>
+              <th style={{ padding: 8, color: colors?.text }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {users.map(({ id: userId, name, email, is_admin }) => (
-              <tr key={userId} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: 8 }}>{userId}</td>
-                <td style={{ padding: 8 }}>{name}</td>
-                <td style={{ padding: 8 }}>{email}</td>
+              <tr key={userId} style={{ borderBottom: `1px solid ${colors?.borderLight || '#eee'}` }}>
+                <td style={{ padding: 8, color: colors?.text }}>{userId}</td>
+                <td style={{ padding: 8, color: colors?.text }}>{name}</td>
+                <td style={{ padding: 8, color: colors?.text }}>{email}</td>
                 <td style={{ padding: 8 }}>
                   <button
                     onClick={() => this.toggleAdmin(userId, is_admin)}
                     style={{
-                      background: is_admin ? '#4CAF50' : '#ccc',
+                      background: is_admin ? colors?.success || '#4CAF50' : colors?.buttonSecondary || '#ccc',
                       color: 'white',
                       border: 'none',
                       padding: '4px 8px',
@@ -136,39 +139,39 @@ export class ManageUsers extends Component {
                   </button>
                 </td>
                 <td style={{ padding: 8 }}>
-                  <Link to={`/users/${userId}/decks`} style={{ marginRight: 8 }}>View Decks</Link>
+                  <Link to={`/users/${userId}/decks`} style={{ marginRight: 8, color: colors?.primary || '#007bff' }}>View Decks</Link>
                   <button
-                    style={{ marginRight: 8 }}
+                    style={{ marginRight: 8, backgroundColor: colors?.buttonPrimary || '#007bff', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: 4, cursor: 'pointer' }}
                     onClick={() => this.setState({ showAssign: true, selectedUser: { id: userId, name, email } })}
                   >
                     Assign
                   </button>
                   <button
-                    style={{ marginRight: 8 }}
+                    style={{ marginRight: 8, backgroundColor: colors?.warning || '#ffc107', color: '#000', border: 'none', padding: '4px 8px', borderRadius: 4, cursor: 'pointer' }}
                     onClick={() => this.setState({ editingUser: userId, newPassword: '' })}
                   >
                     Reset PW
                   </button>
                   <button
-                    style={{ color: 'red' }}
+                    style={{ backgroundColor: colors?.danger || '#dc3545', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: 4, cursor: 'pointer' }}
                     onClick={() => this.deleteUser(userId, name || email)}
                   >
                     Delete
                   </button>
 
                   {editingUser === userId && (
-                    <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4 }}>
+                    <div style={{ marginTop: 8, padding: 8, background: colors?.backgroundSecondary || '#f5f5f5', borderRadius: 4 }}>
                       <input
                         type="password"
                         placeholder="New password"
                         value={newPassword}
                         onChange={(e) => this.setState({ newPassword: e.target.value })}
-                        style={{ marginRight: 8, padding: 4 }}
+                        style={{ marginRight: 8, padding: 4, backgroundColor: colors?.inputBackground || '#fff', color: colors?.text, border: `1px solid ${colors?.inputBorder || '#ddd'}`, borderRadius: 4 }}
                       />
-                      <button onClick={() => this.resetPassword(userId)} style={{ marginRight: 4 }}>
+                      <button onClick={() => this.resetPassword(userId)} style={{ marginRight: 4, backgroundColor: colors?.buttonSuccess || '#28a745', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: 4, cursor: 'pointer' }}>
                         Save
                       </button>
-                      <button onClick={() => this.setState({ editingUser: null, newPassword: '' })}>
+                      <button onClick={() => this.setState({ editingUser: null, newPassword: '' })} style={{ backgroundColor: colors?.buttonSecondary || '#6c757d', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: 4, cursor: 'pointer' }}>
                         Cancel
                       </button>
                     </div>

@@ -1,29 +1,42 @@
 {
   "list": {
     "title": "내 덱",
-    "empty": "아직 덱이 없습니다. 새 덱을 만들거나 공유된 덱을 가져오세요!",
-    "cardCount": "{{count}}장",
-    "dueCount": "오늘 학습: {{count}}장"
+    "empty": "덱이 없습니다. 새 덱을 만들거나 공유된 덱을 가져와보세요!",
+    "cardCount": "카드 {{count}}개",
+    "dueCount": "오늘 학습: {{count}}장",
+    "searchPlaceholder": "덱 검색 (이름 또는 설명)...",
+    "sortNewest": "최신순",
+    "sortName": "이름순",
+    "sortCards": "카드 수",
+    "noSearchResults": "검색 결과가 없습니다.",
+    "cards": "장"
   },
   "create": {
     "title": "새 덱 만들기",
     "name": "덱 이름",
     "description": "설명 (선택사항)",
-    "submit": "만들기"
+    "submit": "만들기",
+    "success": "덱이 생성되었습니다!"
   },
   "import": {
     "title": "Anki 덱 가져오기",
     "description": "Anki 파일(.apkg)을 업로드하여 덱을 가져옵니다.",
-    "howTo": "Anki 덱을 얻는 방법:",
-    "step1": "AnkiWeb 공유 덱 사이트에서 덱을 검색하세요",
-    "step2": ".apkg 파일을 다운로드하세요",
-    "step3": "아래에서 파일을 업로드하세요",
-    "openAnkiWeb": "AnkiWeb 공유 덱 열기",
-    "selectFile": "파일 선택",
+    "howTo": "Anki 덱 구하는 방법:",
+    "step1": "AnkiWeb 공유 덱 사이트에서 원하는 덱 검색",
+    "step2": ".apkg 파일 다운로드",
+    "step3": "아래에서 파일 업로드",
+    "openAnkiWeb": "AnkiWeb 공유 덱 사이트 열기",
+    "selectFile": "Anki 파일을 선택해주세요.",
     "noFile": "선택된 파일 없음",
     "fileType": ".apkg 파일만 지원됩니다.",
     "importing": "가져오는 중...",
-    "submit": "가져오기"
+    "submit": "가져오기",
+    "success": "덱을 가져왔습니다!",
+    "importedCards": "덱을 가져왔습니다!",
+    "failed": "Anki 파일 가져오기 실패",
+    "noDatabase": "Anki 데이터베이스를 찾을 수 없습니다.",
+    "noCards": "가져올 카드가 없습니다.",
+    "noValidCards": "유효한 카드를 찾을 수 없습니다."
   },
   "detail": {
     "cards": "카드",
@@ -31,9 +44,12 @@
     "study": "학습하기",
     "share": "공유",
     "delete": "덱 삭제",
-    "confirmDelete": "이 덱을 삭제하시겠습니까?",
+    "confirmDelete": "이 덱을 삭제하시겠습니까?\n모든 카드와 학습 기록이 삭제됩니다.",
     "editDeck": "덱 수정",
     "deckInfo": "덱 정보"
+  },
+  "delete": {
+    "success": "덱이 삭제되었습니다."
   },
   "card": {
     "front": "앞면",
@@ -49,6 +65,9 @@
     "copy": "링크 복사",
     "copied": "복사됨!",
     "generate": "링크 생성",
-    "expire": "7일 후 만료"
+    "expire": "7일 후 만료",
+    "importShared": "공유된 덱 받기",
+    "importDescription": "Pangstudy 사용자가 공유한 덱의 링크나 토큰을 입력하세요.",
+    "tokenPlaceholder": "공유 링크 또는 토큰 입력"
   }
 }

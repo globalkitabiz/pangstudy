@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { ThemeContext } from '../contexts/ThemeContext';
 
 export default class AdminReport extends Component {
+  static contextType = ThemeContext;
   state = { content: null, error: null };
 
   componentDidMount() {
@@ -15,14 +17,16 @@ export default class AdminReport extends Component {
 
   render() {
     const { content, error } = this.state;
+    const { colors } = this.context || {};
+
     return (
       <div className="AdminReport" style={{ marginTop: 20 }}>
-        <h3>Week 1 Report</h3>
-        {error && <div style={{ color: 'red' }}>{error}</div>}
+        <h3 style={{ color: colors?.text }}>Week 1 Report</h3>
+        {error && <div style={{ color: colors?.danger || 'red' }}>{error}</div>}
         {content ? (
-          <pre style={{ whiteSpace: 'pre-wrap', background: '#f6f8fa', padding: 12 }}>{content}</pre>
+          <pre style={{ whiteSpace: 'pre-wrap', background: colors?.backgroundSecondary || '#f6f8fa', padding: 12, color: colors?.text, borderRadius: 4, border: `1px solid ${colors?.border || '#ddd'}` }}>{content}</pre>
         ) : (
-          <div>Loading...</div>
+          <div style={{ color: colors?.text }}>Loading...</div>
         )}
       </div>
     );
