@@ -1,4 +1,25 @@
 // 관리자 - 사용자별 통계 API
+
+// JWT 검증 함수 (상단에 배치)
+async function verifyJWT(token, secret) {
+    const parts = token.split('.');
+    if (parts.length !== 3) throw new Error('Invalid token format');
+    const [headerB64, payloadB64, signatureB64] = parts;
+    const base64urlDecode = (str) => {
+        str = str.replace(/-/g, '+').replace(/_/g, '/');
+        while (str.length % 4) str += '=';
+        return atob(str);
+    };
+    const payload = JSON.parse(base64urlDecode(payloadB64));
+    if (payload.exp && payload.exp < Date.now() / 1000) throw new Error('Token expired');
+    const encoder = new TextEncoder();
+    const data = encoder.encode(`${headerB64}.${payloadB64}`);
+    const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
+    const sigBytes = Uint8Array.from(base64urlDecode(signatureB64), c => c.charCodeAt(0));
+    if (!await crypto.subtle.verify('HMAC', key, sigBytes, data)) throw new Error('Invalid signature');
+    return payload;
+}
+
 export async function onRequestGet(context) {
     const { env, request, data } = context;
 
@@ -56,22 +77,3 @@ export async function onRequestGet(context) {
     }
 }
 
-// JWT 검증 함수
-async function verifyJWT(token, secret) {
-    const parts = token.split('.');
-    if (parts.length !== 3) throw new Error('Invalid token format');
-    const [headerB64, payloadB64, signatureB64] = parts;
-    const base64urlDecode = (str) => {
-        str = str.replace(/-/g, '+').replace(/_/g, '/');
-        while (str.length % 4) str += '=';
-        return atob(str);
-    };
-    const payload = JSON.parse(base64urlDecode(payloadB64));
-    if (payload.exp && payload.exp < Date.now() / 1000) throw new Error('Token expired');
-    const encoder = new TextEncoder();
-    const data = encoder.encode(`${headerB64}.${payloadB64}`);
-    const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
-    const sigBytes = Uint8Array.from(base64urlDecode(signatureB64), c => c.charCodeAt(0));
-    if (!await crypto.subtle.verify('HMAC', key, sigBytes, data)) throw new Error('Invalid signature');
-    return payload;
-}
