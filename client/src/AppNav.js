@@ -8,7 +8,7 @@ import Layout from './components/Layout';
 
 console.log('IN APPNAV.js AKA root');
 const RedirectComponent = () => {
-  return <Redirect to="/users" />;
+  return <Redirect to="/admin" />;
 };
 const SelectDeckOption = props => {
   return <SelectDeck nav={props} />;
@@ -30,7 +30,7 @@ class AppNav extends PureComponent {
         <Router>
           <div>
             <Route exact path="/" component={() => <RedirectComponent />} />
-            <Route exact path="/users" component={() => <ManageUsers />} />
+            <Route exact path="/admin" component={() => <ManageUsers />} />
             <Route
               exact
               path="/users/:userId/decks"

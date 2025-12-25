@@ -308,6 +308,9 @@ class DeckList extends Component {
                     {showImportForm && (
                         <div style={{ padding: '15px', border: `1px solid ${colors.border}`, borderRadius: '4px', backgroundColor: colors.backgroundSecondary, flex: 1 }}>
                             <h5 style={{ color: colors.text }}>공유된 덱 가져오기</h5>
+                            <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '10px' }}>
+                                Pangstudy 사용자가 공유한 덱의 링크나 토큰을 입력하세요.
+                            </p>
                             <form onSubmit={this.handleImportDeck}>
                                 <input
                                     type="text"
@@ -315,7 +318,7 @@ class DeckList extends Component {
                                     value={shareToken}
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        const tokenMatch = value.match(/shared\/([a-zA-Z0-9]+)/);
+                                        const tokenMatch = value.match(/shared\/([a-zA-Z0-9-]+)/);
                                         this.setState({ shareToken: tokenMatch ? tokenMatch[1] : value });
                                     }}
                                     autoFocus
@@ -330,6 +333,90 @@ class DeckList extends Component {
                                 <button
                                     type="button"
                                     onClick={() => this.setState({ showImportForm: false })}
+                                    style={{ padding: '8px 16px', backgroundColor: colors.buttonSecondary, color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    취소
+                                </button>
+                            </form>
+                        </div>
+                    )}
+
+                    {showAnkiImport && (
+                        <div style={{ padding: '15px', border: `1px solid ${colors.border}`, borderRadius: '4px', backgroundColor: colors.backgroundSecondary, flex: 1 }}>
+                            <h5 style={{ color: colors.text, marginBottom: '10px' }}>Anki 덱 가져오기</h5>
+
+                            <div style={{
+                                padding: '12px',
+                                backgroundColor: colors.alertInfo?.bg || '#e7f3ff',
+                                border: `1px solid ${colors.alertInfo?.border || '#b6d4fe'}`,
+                                borderRadius: '6px',
+                                marginBottom: '15px'
+                            }}>
+                                <p style={{ fontSize: '13px', color: colors.alertInfo?.text || '#084298', margin: '0 0 8px 0', fontWeight: '500' }}>
+                                    Anki 파일(.apkg)을 업로드하여 덱을 가져올 수 있습니다.
+                                </p>
+                                <p style={{ fontSize: '12px', color: colors.alertInfo?.text || '#084298', margin: '0 0 8px 0' }}>
+                                    <strong>Anki 덱 구하는 방법:</strong>
+                                </p>
+                                <ol style={{ fontSize: '12px', color: colors.alertInfo?.text || '#084298', margin: '0', paddingLeft: '20px' }}>
+                                    <li style={{ marginBottom: '4px' }}>AnkiWeb 공유 덱 사이트에서 원하는 덱 검색</li>
+                                    <li style={{ marginBottom: '4px' }}>.apkg 파일 다운로드</li>
+                                    <li>아래에서 파일 업로드</li>
+                                </ol>
+                                <button
+                                    type="button"
+                                    onClick={this.openAnkiWeb}
+                                    style={{
+                                        marginTop: '10px',
+                                        padding: '6px 12px',
+                                        backgroundColor: '#0d6efd',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px'
+                                    }}
+                                >
+                                    AnkiWeb 공유 덱 사이트 열기
+                                </button>
+                            </div>
+
+                            <form onSubmit={this.handleAnkiImport}>
+                                <input
+                                    type="file"
+                                    accept=".apkg"
+                                    onChange={(e) => this.setState({ ankiFile: e.target.files[0] })}
+                                    style={{
+                                        width: '100%',
+                                        padding: '8px',
+                                        marginBottom: '10px',
+                                        backgroundColor: colors.inputBackground,
+                                        color: colors.text,
+                                        border: `1px solid ${colors.inputBorder}`,
+                                        borderRadius: '4px'
+                                    }}
+                                />
+                                <p style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '10px' }}>
+                                    * 최대 10MB, .apkg 파일만 지원됩니다.
+                                </p>
+                                <button
+                                    type="submit"
+                                    disabled={this.state.ankiImporting}
+                                    style={{
+                                        padding: '8px 16px',
+                                        marginRight: '10px',
+                                        backgroundColor: this.state.ankiImporting ? '#999' : '#6f42c1',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: this.state.ankiImporting ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    {this.state.ankiImporting ? '가져오는 중...' : '가져오기'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => this.setState({ showAnkiImport: false, ankiFile: null })}
                                     style={{ padding: '8px 16px', backgroundColor: colors.buttonSecondary, color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     취소

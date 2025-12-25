@@ -18,7 +18,14 @@ class StudySession extends Component {
     }
 
     componentDidMount() {
-        this.loadDueCards();
+        const { assignedMode } = this.props;
+        const { deckId } = this.props.match.params;
+
+        if (assignedMode || deckId === 'assigned') {
+            this.loadAssignedCards();
+        } else {
+            this.loadDueCards();
+        }
         // 키보드 이벤트 리스너 추가
         document.addEventListener('keydown', this.handleKeyPress);
     }
@@ -37,6 +44,22 @@ class StudySession extends Component {
                 this.setState({ completed: true, loading: false });
             } else {
                 this.setState({ cards: data.cards, loading: false });
+            }
+        } catch (err) {
+            this.setState({ error: err.message, loading: false });
+        }
+    };
+
+    loadAssignedCards = async () => {
+        try {
+            this.setState({ loading: true });
+            const data = await (await fetch('/api/study/assigned/due', { headers: { ...(localStorage.getItem('authToken') ? { Authorization: `Bearer ${localStorage.getItem('authToken')}` } : {}) } })).json();
+            if (!data.assignments || data.assignments.length === 0) {
+                this.setState({ completed: true, loading: false });
+            } else {
+                // adapt assignments to card-like objects
+                const cards = data.assignments.map(a => ({ id: a.id, front: a.card_front || (a.notes || 'Assigned item'), back: a.card_back || '', meta_assignment: a }));
+                this.setState({ cards, loading: false });
             }
         } catch (err) {
             this.setState({ error: err.message, loading: false });

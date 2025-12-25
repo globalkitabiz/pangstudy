@@ -14,5 +14,26 @@ database_id = "4d447cdc-e314-4f80-975b-4723fee26a11"
 JWT_SECRET = "7K9mN2pQ4rS6tU8vW1xY3zA5bC7dE0fG2hI4jK6lM8nO0pR2sT4uV6wX8yZ1aB3c"
 NODE_ENV = "production"
 
+# 추천 API 동작 조정용 기본값 (환경변수로 오버라이드 권장)
+# REC_WEIGHT_DUE = 덜 중요한 수치를 높이면 대기 카드 우선순위 증가
+# REC_WEIGHT_ASSIGNED = 할당된 항목 우선순위
+# REC_WEIGHT_RECENT = 최근 활동 반영 가중치
+# REC_WEIGHT_WRONG = 오답 이력 반영 가중치
+# REC_CACHE_SECONDS = KV에 보관할 TTL(초)
+REC_WEIGHT_DUE = "5"
+REC_WEIGHT_ASSIGNED = "10"
+REC_WEIGHT_RECENT = "1"
+REC_WEIGHT_WRONG = "8"
+REC_CACHE_SECONDS = "30"
+
+# --- 추천 서비스 KV 바인딩 (예시) ---
+# 1) 로컬에서 KV 네임스페이스를 생성 후 id를 아래에 입력하세요.
+#    예: wrangler kv:namespace create "REC_CACHE_NAMESPACE"
+# 2) 생성된 id를 아래 kv_namespaces 섹션의 id 필드에 붙여넣으세요.
+
+[[kv_namespaces]]
+binding = "REC_CACHE_NAMESPACE"
+id = "b09faba7bca54c87b0be30f13cca198f"
+
 # 참고: 더 높은 보안을 위해서는 Cloudflare Secret 사용을 권장합니다
 # 하지만 현재 설정에서는 wrangler.toml을 통해 관리됩니다

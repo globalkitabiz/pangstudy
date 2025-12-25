@@ -3,6 +3,8 @@
 
 export async function onRequest(context) {
   const { request, next, env } = context;
+  const url = new URL(request.url);
+  console.log('[Middleware] Processing:', url.pathname);
 
   // 인증이 필요 없는 경로
   const publicPaths = [
@@ -16,7 +18,6 @@ export async function onRequest(context) {
     '/service-worker.js',
     '/precache-manifest'
   ];
-  const url = new URL(request.url);
 
   // 정적 파일이나 공개 경로는 인증 없이 통과
   if (publicPaths.some(path => url.pathname === path || url.pathname.startsWith(path))) {
@@ -41,13 +42,25 @@ export async function onRequest(context) {
 
   try {
     // JWT 검증
+    console.log('[Middleware] Verifying JWT for:', url.pathname);
     const payload = await verifyJWT(token, env.JWT_SECRET);
+    console.log('[Middleware] JWT verified, userId:', payload.userId);
 
-    // 사용자 정보를 context에 추가
-    context.user = payload;
+    // 사용자 정보를 context.data에 추가 (Cloudflare Pages Functions 표준)
+    context.data = context.data || {};
+    context.data.user = payload;
+
+    // attach isAdmin flag from DB if available
+    try {
+      const row = await env.DB.prepare('SELECT is_admin FROM users WHERE id = ?').bind(payload.userId).first();
+      context.data.user.isAdmin = row && (row.is_admin === 1 || row.is_admin === '1' || row.is_admin === true) ? true : false;
+    } catch (e) {
+      context.data.user.isAdmin = false;
+    }
 
     return next();
   } catch (error) {
+    console.error('[Middleware] JWT verification failed:', error.message);
     return new Response(JSON.stringify({ error: 'Invalid token', details: error.message }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' }

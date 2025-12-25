@@ -15,7 +15,7 @@ export async function onRequestPost(context) {
 
         // 사용자 조회
         const user = await env.DB.prepare(
-            'SELECT id, email, username, password_hash FROM users WHERE email = ?'
+            'SELECT id, email, username, password_hash, is_admin FROM users WHERE email = ?'
         ).bind(email).first();
 
         if (!user) {
@@ -46,7 +46,8 @@ export async function onRequestPost(context) {
             user: {
                 id: user.id,
                 email: user.email,
-                username: user.username
+                username: user.username,
+                is_admin: user.is_admin === 1 || user.is_admin === '1' ? true : false
             }
         }), {
             status: 200,

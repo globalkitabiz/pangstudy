@@ -1,5 +1,6 @@
 // 회원가입 컴포넌트
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import { authAPI } from '../../utils/api';
 import { getErrorMessage } from '../../utils/errorHandler';
 
@@ -28,8 +29,8 @@ class Register extends Component {
                 this.props.onRegisterSuccess();
             }
 
-            // 덱 목록 페이지로 리다이렉션
-            window.location.href = '/decks';
+            // 덱 목록 페이지로 리다이렉션 (React Router 사용)
+            this.props.history.push('/decks');
         } catch (err) {
             this.setState({ error: getErrorMessage(err) });
         } finally {
@@ -126,4 +127,5 @@ class Register extends Component {
     }
 }
 
-export { Register };
+const RegisterWithRouter = withRouter(Register);
+export { RegisterWithRouter as Register };
