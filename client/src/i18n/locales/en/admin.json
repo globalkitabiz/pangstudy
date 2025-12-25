@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "decks": "Decks",
+    "assign": "Assign",
+    "stats": "Statistics",
+    "backToSite": "Back to Site"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalUsers": "Total Users",
+    "totalDecks": "Total Decks",
+    "totalCards": "Total Cards",
+    "totalReviews": "Total Reviews",
+    "todayReviews": "Today's Reviews"
+  },
+  "users": {
+    "title": "User Management",
+    "name": "Name",
+    "email": "Email",
+    "isAdmin": "Admin",
+    "actions": "Actions",
+    "delete": "Delete",
+    "makeAdmin": "Make Admin",
+    "removeAdmin": "Remove Admin",
+    "addUser": "Add User",
+    "confirmDelete": "Are you sure you want to delete this user?"
+  },
+  "decks": {
+    "title": "Deck Management",
+    "name": "Deck Name",
+    "owner": "Owner",
+    "cardCount": "Cards",
+    "createdAt": "Created",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this deck?",
+    "viewCards": "View Cards"
+  },
+  "assign": {
+    "title": "Assign Study",
+    "selectUser": "Select User",
+    "selectDeck": "Select Deck",
+    "dueDate": "Due Date",
+    "submit": "Assign",
+    "current": "Current Assignments",
+    "noAssignments": "No assignments",
+    "delete": "Delete",
+    "assignedTo": "Assigned to",
+    "deck": "Deck"
+  },
+  "stats": {
+    "title": "Statistics",
+    "user": "User",
+    "deckCount": "Decks",
+    "cardCount": "Cards",
+    "totalReviews": "Total Reviews",
+    "todayReviews": "Today",
+    "lastActivity": "Last Activity",
+    "noActivity": "No activity"
+  }
+}

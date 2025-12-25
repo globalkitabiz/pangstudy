@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "dashboard": "Dasbor",
+    "users": "Pengguna",
+    "decks": "Dek",
+    "assign": "Tugaskan",
+    "stats": "Statistik",
+    "backToSite": "Kembali ke Situs"
+  },
+  "dashboard": {
+    "title": "Dasbor",
+    "totalUsers": "Total Pengguna",
+    "totalDecks": "Total Dek",
+    "totalCards": "Total Kartu",
+    "totalReviews": "Total Ulasan",
+    "todayReviews": "Ulasan Hari Ini"
+  },
+  "users": {
+    "title": "Manajemen Pengguna",
+    "name": "Nama",
+    "email": "Email",
+    "isAdmin": "Admin",
+    "actions": "Aksi",
+    "delete": "Hapus",
+    "makeAdmin": "Jadikan Admin",
+    "removeAdmin": "Hapus Admin",
+    "addUser": "Tambah Pengguna",
+    "confirmDelete": "Apakah Anda yakin ingin menghapus pengguna ini?"
+  },
+  "decks": {
+    "title": "Manajemen Dek",
+    "name": "Nama Dek",
+    "owner": "Pemilik",
+    "cardCount": "Kartu",
+    "createdAt": "Dibuat",
+    "delete": "Hapus",
+    "confirmDelete": "Apakah Anda yakin ingin menghapus dek ini?",
+    "viewCards": "Lihat Kartu"
+  },
+  "assign": {
+    "title": "Tugaskan Belajar",
+    "selectUser": "Pilih Pengguna",
+    "selectDeck": "Pilih Dek",
+    "dueDate": "Tanggal Tenggat",
+    "submit": "Tugaskan",
+    "current": "Tugas Saat Ini",
+    "noAssignments": "Tidak ada tugas",
+    "delete": "Hapus",
+    "assignedTo": "Ditugaskan kepada",
+    "deck": "Dek"
+  },
+  "stats": {
+    "title": "Statistik",
+    "user": "Pengguna",
+    "deckCount": "Dek",
+    "cardCount": "Kartu",
+    "totalReviews": "Total Ulasan",
+    "todayReviews": "Hari Ini",
+    "lastActivity": "Aktivitas Terakhir",
+    "noActivity": "Tidak ada aktivitas"
+  }
+}

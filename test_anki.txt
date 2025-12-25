@@ -1,0 +1,5 @@
+[0]: 안녕하세요.
+[1]: Hello!
+[2]: 
+[3]: [sound:hello.mp3]
+[4]: A universal polite greeting

@@ -1,0 +1,31 @@
+{
+  "session": {
+    "showAnswer": "Show Answer",
+    "rateTitle": "How well did you remember?",
+    "again": "Again",
+    "hard": "Hard",
+    "good": "Good",
+    "easy": "Easy",
+    "complete": "Study Complete!",
+    "cardsStudied": "You studied {{count}} cards",
+    "backToDecks": "Back to Decks",
+    "continueStudy": "Continue Study",
+    "noCards": "No cards to study",
+    "allDone": "All done for today!"
+  },
+  "progress": {
+    "remaining": "Remaining: {{count}}",
+    "new": "New",
+    "learning": "Learning",
+    "review": "Review",
+    "total": "Total"
+  },
+  "assigned": {
+    "title": "Assigned Study",
+    "empty": "No assigned study",
+    "dueDate": "Due: {{date}}",
+    "start": "Start Study",
+    "completed": "Completed",
+    "pending": "Pending"
+  }
+}

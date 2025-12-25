@@ -85,8 +85,8 @@ export async function onRequestPost(context) {
         const arrayBuffer = await file.arrayBuffer();
         const bytes = new Uint8Array(arrayBuffer);
 
-        // ZIP 파일 파싱 (간단한 구현)
-        const zipEntries = parseZip(bytes);
+        // ZIP 파일 파싱 (비동기)
+        const zipEntries = await parseZip(bytes);
 
         // collection.anki2 또는 collection.anki21 파일 찾기
         let dbEntry = zipEntries.find(e => e.name === 'collection.anki2' || e.name === 'collection.anki21');
@@ -161,8 +161,8 @@ export async function onRequestPost(context) {
     }
 }
 
-// 간단한 ZIP 파서
-function parseZip(bytes) {
+// 비동기 ZIP 파서
+async function parseZip(bytes) {
     const entries = [];
     let offset = 0;
 
@@ -171,12 +171,9 @@ function parseZip(bytes) {
         if (bytes[offset] === 0x50 && bytes[offset + 1] === 0x4b &&
             bytes[offset + 2] === 0x03 && bytes[offset + 3] === 0x04) {
 
-            const generalPurpose = bytes[offset + 6] | (bytes[offset + 7] << 8);
             const compressionMethod = bytes[offset + 8] | (bytes[offset + 9] << 8);
             const compressedSize = bytes[offset + 18] | (bytes[offset + 19] << 8) |
                 (bytes[offset + 20] << 16) | (bytes[offset + 21] << 24);
-            const uncompressedSize = bytes[offset + 22] | (bytes[offset + 23] << 8) |
-                (bytes[offset + 24] << 16) | (bytes[offset + 25] << 24);
             const fileNameLength = bytes[offset + 26] | (bytes[offset + 27] << 8);
             const extraFieldLength = bytes[offset + 28] | (bytes[offset + 29] << 8);
 
@@ -192,18 +189,18 @@ function parseZip(bytes) {
                 // 압축되지 않음
                 data = bytes.slice(dataStart, dataEnd);
             } else if (compressionMethod === 8) {
-                // DEFLATE 압축
+                // DEFLATE 압축 - 비동기 해제
                 try {
-                    data = inflateRaw(bytes.slice(dataStart, dataEnd));
+                    data = await inflateRawAsync(bytes.slice(dataStart, dataEnd));
                 } catch (e) {
-                    // 압축 해제 실패 시 원본 데이터 사용
+                    console.error('Inflate error for', fileName, e);
                     data = bytes.slice(dataStart, dataEnd);
                 }
             } else {
                 data = bytes.slice(dataStart, dataEnd);
             }
 
-            entries.push({ name: fileName, data: data });
+            entries.push({ name: fileName, data: data, compressionMethod });
             offset = dataEnd;
         } else {
             offset++;
@@ -213,13 +210,70 @@ function parseZip(bytes) {
     return entries;
 }
 
-// 간단한 DEFLATE 해제 (raw inflate)
-function inflateRaw(compressed) {
-    // Cloudflare Workers에서는 DecompressionStream 사용 가능
-    // 하지만 동기 처리를 위해 간단한 구현 사용
-    // 실제로는 pako 같은 라이브러리가 필요하지만, CF Workers에서는 제한적
+// DEFLATE 해제 (DecompressionStream 사용)
+async function inflateRawAsync(compressed) {
+    try {
+        // 'deflate-raw' 사용 (ZIP의 raw deflate 데이터용)
+        const ds = new DecompressionStream('deflate-raw');
+        const writer = ds.writable.getWriter();
+        const reader = ds.readable.getReader();
 
-    // 압축되지 않은 블록만 처리하는 간단한 구현
+        writer.write(compressed);
+        writer.close();
+
+        const chunks = [];
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+        }
+
+        const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const result = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+            result.set(chunk, offset);
+            offset += chunk.length;
+        }
+
+        return result;
+    } catch (e) {
+        console.error('Deflate-raw error:', e);
+        // fallback: 'deflate' 시도
+        try {
+            const ds = new DecompressionStream('deflate');
+            const writer = ds.writable.getWriter();
+            const reader = ds.readable.getReader();
+
+            writer.write(compressed);
+            writer.close();
+
+            const chunks = [];
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+            }
+
+            const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+            const result = new Uint8Array(totalLength);
+            let offset = 0;
+            for (const chunk of chunks) {
+                result.set(chunk, offset);
+                offset += chunk.length;
+            }
+
+            return result;
+        } catch (e2) {
+            console.error('Deflate fallback error:', e2);
+            return compressed;
+        }
+    }
+}
+
+// 동기 버전 (fallback)
+function inflateRaw(compressed) {
+    // 압축되지 않은 블록만 처리
     const result = [];
     let i = 0;
 
@@ -228,15 +282,13 @@ function inflateRaw(compressed) {
         const btype = (compressed[i] >> 1) & 3;
 
         if (btype === 0) {
-            // 비압축 블록
             i++;
             const len = compressed[i] | (compressed[i + 1] << 8);
-            i += 4; // len + nlen
+            i += 4;
             for (let j = 0; j < len && i < compressed.length; j++, i++) {
                 result.push(compressed[i]);
             }
         } else {
-            // 압축된 블록 - 원본 반환
             return compressed;
         }
 
@@ -246,49 +298,123 @@ function inflateRaw(compressed) {
     return new Uint8Array(result);
 }
 
-// Anki SQLite 데이터베이스 파싱 (간단한 구현)
+// Anki SQLite 데이터베이스 파싱 (개선된 버전)
 function parseAnkiDatabase(dbBytes) {
     const cards = [];
 
     // SQLite 파일인지 확인
     const header = new TextDecoder().decode(dbBytes.slice(0, 16));
     if (!header.startsWith('SQLite format 3')) {
-        // SQLite가 아니면 텍스트로 파싱 시도
         return parseTextFormat(dbBytes);
     }
 
-    // SQLite 바이너리에서 텍스트 패턴 추출
+    // SQLite 바이너리에서 notes 테이블 데이터 추출
+    // Anki notes 테이블의 flds 컬럼에서 \x1f로 구분된 필드를 찾음
+
+    // 바이너리에서 UTF-8 텍스트 블록 추출 (더 정교한 방식)
+    const extractedCards = extractNotesFromSQLite(dbBytes);
+
+    if (extractedCards.length > 0) {
+        return extractedCards.slice(0, 1000);
+    }
+
+    // fallback: 기존 방식
     const text = new TextDecoder('utf-8', { fatal: false }).decode(dbBytes);
-
-    // HTML 태그로 감싸진 내용 찾기 (Anki 카드 형식)
-    const htmlPattern = /<[^>]+>([^<]*)<\/[^>]+>/g;
-    const matches = [...text.matchAll(htmlPattern)];
-
-    // 또는 필드 구분자 (0x1f) 찾기
     const fieldSeparator = String.fromCharCode(0x1f);
     const parts = text.split(fieldSeparator);
 
-    // 유효한 텍스트 조각 필터링
     const validParts = parts
         .map(p => cleanText(p))
         .filter(p => p.length > 0 && p.length < 10000 && !p.includes('SQLite'));
 
-    // 쌍으로 묶어서 카드 생성
     for (let i = 0; i < validParts.length - 1; i += 2) {
         const front = validParts[i];
         const back = validParts[i + 1];
-
         if (front && back && front !== back) {
             cards.push({ front, back });
         }
     }
 
-    // 카드가 없으면 다른 패턴 시도
     if (cards.length === 0) {
         return extractCardsFromBinary(dbBytes);
     }
 
-    return cards.slice(0, 1000); // 최대 1000장
+    return cards.slice(0, 1000);
+}
+
+// SQLite 바이너리에서 notes 레코드 추출
+function extractNotesFromSQLite(dbBytes) {
+    const cards = [];
+    const fieldSeparator = 0x1f; // Unit Separator
+
+    // 바이너리에서 flds 필드 패턴 찾기
+    // flds는 \x1f로 구분된 UTF-8 문자열
+    let i = 0;
+    while (i < dbBytes.length - 10) {
+        // \x1f 구분자 찾기
+        if (dbBytes[i] === fieldSeparator) {
+            // 앞뒤로 텍스트 블록 추출 시도
+            const frontStart = findTextStart(dbBytes, i);
+            const backEnd = findTextEnd(dbBytes, i + 1);
+
+            if (frontStart !== -1 && backEnd !== -1) {
+                const front = decodeUTF8Segment(dbBytes, frontStart, i);
+                const backStart = i + 1;
+                let nextSep = backStart;
+                while (nextSep < dbBytes.length && dbBytes[nextSep] !== fieldSeparator) {
+                    nextSep++;
+                }
+                const back = decodeUTF8Segment(dbBytes, backStart, nextSep);
+
+                if (front && back && front.length > 1 && back.length > 1 &&
+                    front !== back && !front.includes('SQLite') && !back.includes('CREATE')) {
+                    cards.push({ front: cleanText(front), back: cleanText(back) });
+                }
+            }
+        }
+        i++;
+    }
+
+    // 중복 제거
+    const seen = new Set();
+    return cards.filter(c => {
+        const key = c.front + '|||' + c.back;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
+function findTextStart(bytes, pos) {
+    let start = pos - 1;
+    while (start >= 0 && isValidUTF8Byte(bytes, start)) {
+        start--;
+    }
+    return start + 1;
+}
+
+function findTextEnd(bytes, pos) {
+    let end = pos;
+    while (end < bytes.length && isValidUTF8Byte(bytes, end) && bytes[end] !== 0x1f) {
+        end++;
+    }
+    return end;
+}
+
+function isValidUTF8Byte(bytes, pos) {
+    const b = bytes[pos];
+    // 출력 가능한 ASCII 또는 UTF-8 멀티바이트 시작/연속
+    return (b >= 0x20 && b < 0x7f) || (b >= 0x80 && b <= 0xf4);
+}
+
+function decodeUTF8Segment(bytes, start, end) {
+    if (start >= end || end > bytes.length) return '';
+    try {
+        const segment = bytes.slice(start, end);
+        return new TextDecoder('utf-8', { fatal: false }).decode(segment);
+    } catch (e) {
+        return '';
+    }
 }
 
 // 텍스트 정리

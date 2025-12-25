@@ -112,14 +112,14 @@ export async function onRequestPost(context) {
             await env.DB.prepare(
                 `UPDATE reviews
                  SET ease_factor = ?, interval_days = ?, repetitions = ?,
-                     next_review = ?, reviewed_at = DATETIME('now')
+                     next_review_date = ?, reviewed_at = DATETIME('now')
                  WHERE card_id = ? AND user_id = ?`
             ).bind(easeFactor, interval, repetitions, nextReviewStr, cardId, userId).run();
         } else {
             await env.DB.prepare(
-                `INSERT INTO reviews (card_id, user_id, ease_factor, interval_days, repetitions, next_review)
-                 VALUES (?, ?, ?, ?, ?, ?)`
-            ).bind(cardId, userId, easeFactor, interval, repetitions, nextReviewStr).run();
+                `INSERT INTO reviews (card_id, user_id, ease_factor, interval_days, repetitions, next_review_date, difficulty)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`
+            ).bind(cardId, userId, easeFactor, interval, repetitions, nextReviewStr, difficulty).run();
         }
 
         return new Response(JSON.stringify({

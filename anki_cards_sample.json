@@ -1,0 +1,82 @@
+[
+  {
+    "front": "안녕하세요.",
+    "back": "Hello!"
+  },
+  {
+    "front": "감사합니다.",
+    "back": "Thank you."
+  },
+  {
+    "front": "안녕히 계세요.",
+    "back": "Goodbye."
+  },
+  {
+    "front": "안녕히 가세요.",
+    "back": "Goodbye."
+  },
+  {
+    "front": "죄송합니다.",
+    "back": "I apologize."
+  },
+  {
+    "front": "저기요.",
+    "back": "Excuse me!"
+  },
+  {
+    "front": "물이에요.",
+    "back": "It's water."
+  },
+  {
+    "front": "가방이에요.",
+    "back": "It's a bag."
+  },
+  {
+    "front": "저예요.",
+    "back": "It's me."
+  },
+  {
+    "front": "이거 책이에요.",
+    "back": "This is a book."
+  },
+  {
+    "front": "이거 카메라예요.",
+    "back": "This is a camera."
+  },
+  {
+    "front": "이거 뭐예요?",
+    "back": "What is this?"
+  },
+  {
+    "front": "이거 물이에요.",
+    "back": "This is water."
+  },
+  {
+    "front": "네, 맞아요.",
+    "back": "Yes, that's right."
+  },
+  {
+    "front": "우유 아니에요.",
+    "back": "It's not milk."
+  },
+  {
+    "front": "저 학생 아니에요.",
+    "back": "I'm not a student."
+  },
+  {
+    "front": "그거 고양이 아니에요.",
+    "back": "It's not a cat."
+  },
+  {
+    "front": "목소리&nbsp;좋아요.",
+    "back": "Your voice is good."
+  },
+  {
+    "front": "물 있어요.",
+    "back": "I have water."
+  },
+  {
+    "front": "시간 있어요?",
+    "back": "Do you have time?"
+  }
+]

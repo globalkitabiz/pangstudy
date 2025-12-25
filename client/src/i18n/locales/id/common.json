@@ -1,0 +1,38 @@
+{
+  "appName": "Pangstudy",
+  "nav": {
+    "decks": "Dek",
+    "recommendations": "Rekomendasi",
+    "assigned": "Ditugaskan",
+    "admin": "Admin",
+    "logout": "Keluar",
+    "login": "Masuk"
+  },
+  "button": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "create": "Buat",
+    "import": "Impor",
+    "export": "Ekspor",
+    "back": "Kembali",
+    "submit": "Kirim",
+    "confirm": "Konfirmasi",
+    "close": "Tutup"
+  },
+  "message": {
+    "loading": "Memuat...",
+    "error": "Terjadi kesalahan",
+    "success": "Berhasil",
+    "confirm": "Apakah Anda yakin?",
+    "noData": "Tidak ada data",
+    "required": "Bidang ini wajib diisi"
+  },
+  "language": {
+    "select": "Bahasa",
+    "ko": "Korea",
+    "en": "Inggris",
+    "id": "Indonesia"
+  }
+}

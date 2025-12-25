@@ -1,0 +1,54 @@
+{
+  "list": {
+    "title": "Dek Saya",
+    "empty": "Belum ada dek. Buat dek baru atau impor dek yang dibagikan!",
+    "cardCount": "{{count}} kartu",
+    "dueCount": "Hari ini: {{count}}"
+  },
+  "create": {
+    "title": "Buat Dek Baru",
+    "name": "Nama Dek",
+    "description": "Deskripsi (opsional)",
+    "submit": "Buat"
+  },
+  "import": {
+    "title": "Impor Dek Anki",
+    "description": "Unggah file Anki (.apkg) untuk mengimpor dek.",
+    "howTo": "Cara mendapatkan dek Anki:",
+    "step1": "Cari dek di situs AnkiWeb",
+    "step2": "Unduh file .apkg",
+    "step3": "Unggah file di bawah",
+    "openAnkiWeb": "Buka AnkiWeb",
+    "selectFile": "Pilih File",
+    "noFile": "Tidak ada file dipilih",
+    "fileType": "Hanya file .apkg yang didukung.",
+    "importing": "Mengimpor...",
+    "submit": "Impor"
+  },
+  "detail": {
+    "cards": "Kartu",
+    "addCard": "Tambah Kartu",
+    "study": "Belajar",
+    "share": "Bagikan",
+    "delete": "Hapus Dek",
+    "confirmDelete": "Apakah Anda yakin ingin menghapus dek ini?",
+    "editDeck": "Edit Dek",
+    "deckInfo": "Info Dek"
+  },
+  "card": {
+    "front": "Depan",
+    "back": "Belakang",
+    "add": "Tambah Kartu",
+    "edit": "Edit Kartu",
+    "delete": "Hapus Kartu",
+    "confirmDelete": "Apakah Anda yakin ingin menghapus kartu ini?"
+  },
+  "share": {
+    "title": "Bagikan Dek",
+    "link": "Tautan Berbagi",
+    "copy": "Salin Tautan",
+    "copied": "Disalin!",
+    "generate": "Buat Tautan",
+    "expire": "Kedaluwarsa dalam 7 hari"
+  }
+}

@@ -66,14 +66,14 @@ export async function onRequestGet(context) {
             });
         }
 
-        // 학습 대기 중인 카드 조회 (next_review가 현재 시간보다 이전이거나 null)
+        // 학습 대기 중인 카드 조회 (next_review_date가 현재 시간보다 이전이거나 리뷰 없음)
         const cards = await env.DB.prepare(
             `SELECT c.id, c.front, c.back,
-                    r.next_review, r.ease_factor, r.interval_days, r.repetitions
+                    r.next_review_date, r.ease_factor, r.interval_days, r.repetitions
              FROM cards c
              LEFT JOIN reviews r ON c.id = r.card_id AND r.user_id = ?
              WHERE c.deck_id = ?
-             AND (r.next_review IS NULL OR r.next_review <= DATETIME('now'))
+             AND (r.id IS NULL OR r.next_review_date <= DATETIME('now'))
              ORDER BY RANDOM()
              LIMIT 20`
         ).bind(userId, deckId).all();

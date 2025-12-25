@@ -1,0 +1,31 @@
+{
+  "session": {
+    "showAnswer": "Tampilkan Jawaban",
+    "rateTitle": "Seberapa baik Anda ingat?",
+    "again": "Lagi",
+    "hard": "Sulit",
+    "good": "Baik",
+    "easy": "Mudah",
+    "complete": "Belajar Selesai!",
+    "cardsStudied": "Anda telah belajar {{count}} kartu",
+    "backToDecks": "Kembali ke Dek",
+    "continueStudy": "Lanjut Belajar",
+    "noCards": "Tidak ada kartu untuk dipelajari",
+    "allDone": "Semua selesai untuk hari ini!"
+  },
+  "progress": {
+    "remaining": "Tersisa: {{count}}",
+    "new": "Baru",
+    "learning": "Sedang Belajar",
+    "review": "Ulasan",
+    "total": "Total"
+  },
+  "assigned": {
+    "title": "Tugas Belajar",
+    "empty": "Tidak ada tugas belajar",
+    "dueDate": "Tenggat: {{date}}",
+    "start": "Mulai Belajar",
+    "completed": "Selesai",
+    "pending": "Menunggu"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "list": {
+    "title": "My Decks",
+    "empty": "No decks yet. Create a new deck or import a shared deck!",
+    "cardCount": "{{count}} cards",
+    "dueCount": "Due today: {{count}}"
+  },
+  "create": {
+    "title": "Create New Deck",
+    "name": "Deck Name",
+    "description": "Description (optional)",
+    "submit": "Create"
+  },
+  "import": {
+    "title": "Import Anki Deck",
+    "description": "Upload an Anki file (.apkg) to import a deck.",
+    "howTo": "How to get Anki decks:",
+    "step1": "Search for decks on AnkiWeb shared deck site",
+    "step2": "Download the .apkg file",
+    "step3": "Upload the file below",
+    "openAnkiWeb": "Open AnkiWeb Shared Decks",
+    "selectFile": "Select File",
+    "noFile": "No file selected",
+    "fileType": "Only .apkg files are supported.",
+    "importing": "Importing...",
+    "submit": "Import"
+  },
+  "detail": {
+    "cards": "Cards",
+    "addCard": "Add Card",
+    "study": "Study",
+    "share": "Share",
+    "delete": "Delete Deck",
+    "confirmDelete": "Are you sure you want to delete this deck?",
+    "editDeck": "Edit Deck",
+    "deckInfo": "Deck Info"
+  },
+  "card": {
+    "front": "Front",
+    "back": "Back",
+    "add": "Add Card",
+    "edit": "Edit Card",
+    "delete": "Delete Card",
+    "confirmDelete": "Are you sure you want to delete this card?"
+  },
+  "share": {
+    "title": "Share Deck",
+    "link": "Share Link",
+    "copy": "Copy Link",
+    "copied": "Copied!",
+    "generate": "Generate Link",
+    "expire": "Expires in 7 days"
+  }
+}

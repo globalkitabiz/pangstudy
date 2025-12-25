@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { withTranslation } from 'react-i18next';
 import { authAPI } from '../utils/api';
+import LanguageSelector from './LanguageSelector';
 import './Layout.css';
 
-export class Layout extends Component {
+class Layout extends Component {
   render() {
+    const { t } = this.props;
     const user = authAPI.getUser();
     return (
       <div className="layout-container">
@@ -14,10 +17,11 @@ export class Layout extends Component {
               <h1 className="brand-title">Pangstudy</h1>
             </div>
             <nav className="header-nav">
-              <Link to="/decks" className="nav-link">Decks</Link>
-              <Link to="/recommendations" className="nav-link">Recommendations</Link>
-              <Link to="/study/assigned" className="nav-link">Assigned</Link>
-              {user && user.is_admin && <Link to="/admin" className="nav-link">Admin</Link>}
+              <Link to="/decks" className="nav-link">{t('nav.decks')}</Link>
+              <Link to="/recommendations" className="nav-link">{t('nav.recommendations')}</Link>
+              <Link to="/study/assigned" className="nav-link">{t('nav.assigned')}</Link>
+              {user && user.is_admin && <Link to="/admin" className="nav-link">{t('nav.admin')}</Link>}
+              <LanguageSelector />
               {user ? (
                 <button
                   className="logout-btn"
@@ -27,10 +31,10 @@ export class Layout extends Component {
                     window.location.href = '/login';
                   }}
                 >
-                  Logout
+                  {t('nav.logout')}
                 </button>
               ) : (
-                <Link to="/login" className="nav-link">Login</Link>
+                <Link to="/login" className="nav-link">{t('nav.login')}</Link>
               )}
             </nav>
           </div>
@@ -43,4 +47,4 @@ export class Layout extends Component {
   }
 }
 
-export default Layout;
+export default withTranslation('common')(Layout);

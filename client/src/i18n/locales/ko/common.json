@@ -1,0 +1,38 @@
+{
+  "appName": "Pangstudy",
+  "nav": {
+    "decks": "Decks",
+    "recommendations": "Recommendations",
+    "assigned": "Assigned",
+    "admin": "Admin",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "button": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "import": "Import",
+    "export": "Export",
+    "back": "Back",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "close": "Close"
+  },
+  "message": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "confirm": "Are you sure?",
+    "noData": "No data",
+    "required": "This field is required"
+  },
+  "language": {
+    "select": "Language",
+    "ko": "Korean",
+    "en": "English",
+    "id": "Indonesian"
+  }
+}
