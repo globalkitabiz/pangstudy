@@ -13,14 +13,21 @@ class Layout extends Component {
       <div className="layout-container">
         <header className="layout-header">
           <div className="header-content">
+            {/* Logo - Left */}
             <div className="header-brand">
               <h1 className="brand-title">Pangstudy</h1>
             </div>
+
+            {/* Navigation - Center */}
             <nav className="header-nav">
               <Link to="/decks" className="nav-link">{t('nav.decks')}</Link>
               <Link to="/recommendations" className="nav-link">{t('nav.recommendations')}</Link>
               <Link to="/study/assigned" className="nav-link">{t('nav.assigned')}</Link>
               {user && user.is_admin && <Link to="/admin" className="nav-link">{t('nav.admin')}</Link>}
+            </nav>
+
+            {/* Right Section - Language & Auth */}
+            <div className="header-right">
               <LanguageSelector />
               {user ? (
                 <button
@@ -36,7 +43,7 @@ class Layout extends Component {
               ) : (
                 <Link to="/login" className="nav-link">{t('nav.login')}</Link>
               )}
-            </nav>
+            </div>
           </div>
         </header>
         <main className="layout-main">
