@@ -6,6 +6,8 @@ import Statistics from './Statistics';
 import LoadingSpinner from './LoadingSpinner';
 import ThemeToggle from './ThemeToggle';
 import { ThemeContext } from '../contexts/ThemeContext';
+import JSZip from 'jszip';
+// sql.js는 CDN에서 동적 로드 (호환성 문제 해결)
 
 class DeckList extends Component {
     static contextType = ThemeContext;
@@ -91,18 +93,76 @@ class DeckList extends Component {
         this.setState({ ankiImporting: true, error: '' });
 
         try {
-            const formData = new FormData();
-            formData.append('file', ankiFile);
+            // 1. 클라이언트에서 .apkg (ZIP) 압축 해제
+            const arrayBuffer = await ankiFile.arrayBuffer();
+            const zip = await JSZip.loadAsync(arrayBuffer);
 
+            // 2. collection.anki2 또는 collection.anki21 파일 찾기
+            let dbFile = zip.file('collection.anki2') || zip.file('collection.anki21');
+            if (!dbFile) {
+                throw new Error('Anki 데이터베이스를 찾을 수 없습니다.');
+            }
+
+            // 3. SQLite 데이터베이스 읽기
+            const dbData = await dbFile.async('uint8array');
+
+            // 4. sql.js CDN에서 동적 로드
+            // eslint-disable-next-line no-undef
+            if (!window.initSqlJs) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://sql.js.org/dist/sql-wasm.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            // eslint-disable-next-line no-undef
+            const SQL = await window.initSqlJs({
+                locateFile: file => `https://sql.js.org/dist/${file}`
+            });
+            const db = new SQL.Database(dbData);
+
+            // 5. notes 테이블에서 카드 추출
+            const results = db.exec("SELECT flds FROM notes");
+            if (!results.length || !results[0].values.length) {
+                throw new Error('가져올 카드가 없습니다.');
+            }
+
+            const cards = [];
+            for (const row of results[0].values) {
+                const flds = row[0];
+                const parts = flds.split('\x1f'); // Unit Separator
+                if (parts.length >= 2) {
+                    const front = this.cleanAnkiText(parts[0]);
+                    const back = this.cleanAnkiText(parts[1]);
+                    if (front && back) {
+                        cards.push({ front, back });
+                    }
+                }
+            }
+
+            db.close();
+
+            if (cards.length === 0) {
+                throw new Error('유효한 카드를 찾을 수 없습니다.');
+            }
+
+            // 6. 서버로 카드 데이터 전송
             const token = localStorage.getItem('authToken');
             const API_BASE = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8788';
+            const deckName = ankiFile.name.replace('.apkg', '').replace(/_/g, ' ');
 
-            const response = await fetch(`${API_BASE}/api/anki/import`, {
+            const response = await fetch(`${API_BASE}/api/anki/import-cards`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 },
-                body: formData
+                body: JSON.stringify({
+                    deckName,
+                    cards: cards.slice(0, 1000) // 최대 1000장
+                })
             });
 
             const result = await response.json();
@@ -115,13 +175,28 @@ class DeckList extends Component {
                 ankiFile: null,
                 showAnkiImport: false,
                 ankiImporting: false,
-                success: result.message || `${result.deckName} 덱을 가져왔습니다! (${result.cardCount}장)`
+                success: result.message || `${deckName} 덱을 가져왔습니다! (${cards.length}장)`
             });
             this.loadDecks();
             setTimeout(() => this.setState({ success: '' }), 5000);
         } catch (err) {
+            console.error('Anki import error:', err);
             this.setState({ error: err.message, ankiImporting: false });
         }
+    };
+
+    // Anki 텍스트 정리 (HTML 태그 제거 등)
+    cleanAnkiText = (text) => {
+        if (!text) return '';
+        return text
+            .replace(/<[^>]+>/g, '') // HTML 태그 제거
+            .replace(/\[sound:[^\]]+\]/g, '') // 사운드 태그 제거
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/\s+/g, ' ')
+            .trim();
     };
 
     openAnkiWeb = () => {
@@ -397,7 +472,7 @@ class DeckList extends Component {
                                     }}
                                 />
                                 <p style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '10px' }}>
-                                    * 최대 10MB, .apkg 파일만 지원됩니다.
+                                    * .apkg 파일만 지원됩니다.
                                 </p>
                                 <button
                                     type="submit"
