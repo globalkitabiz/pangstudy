@@ -373,7 +373,7 @@ class StudySession extends Component {
                                         }}
                                         title="음성 재생"
                                     >
-                                        {this.state.speaking ? '...' : '🔊'}
+                                        {this.state.speaking ? '...' : <span role="img" aria-label="speaker">&#128266;</span>}
                                     </button>
                                 </div>
                                 <div style={{ color: '#6c757d', marginTop: '30px' }}>
@@ -397,7 +397,7 @@ class StudySession extends Component {
                                         }}
                                         title="질문 음성 재생"
                                     >
-                                        🔊
+                                        <span role="img" aria-label="speaker">&#128266;</span>
                                     </button>
                                 </div>
                                 <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #dee2e6' }} />
@@ -416,7 +416,7 @@ class StudySession extends Component {
                                         }}
                                         title="답변 음성 재생"
                                     >
-                                        {this.state.speaking ? '...' : '🔊'}
+                                        {this.state.speaking ? '...' : <span role="img" aria-label="speaker">&#128266;</span>}
                                     </button>
                                 </div>
                             </>
