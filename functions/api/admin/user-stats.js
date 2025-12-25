@@ -55,23 +55,39 @@ export async function onRequestGet(context) {
     }
 
     try {
+        // 간단한 쿼리로 사용자 목록 조회
         const users = await env.DB.prepare(`
-            SELECT
-                u.id, u.username, u.email, u.name,
-                (SELECT COUNT(*) FROM decks WHERE user_id = u.id) as deck_count,
-                (SELECT COUNT(*) FROM cards c JOIN decks d ON c.deck_id = d.id WHERE d.user_id = u.id) as card_count,
-                (SELECT COUNT(*) FROM reviews r JOIN cards c ON r.card_id = c.id JOIN decks d ON c.deck_id = d.id WHERE d.user_id = u.id) as total_reviews,
-                (SELECT COUNT(*) FROM reviews r JOIN cards c ON r.card_id = c.id JOIN decks d ON c.deck_id = d.id WHERE d.user_id = u.id AND date(r.reviewed_at) = date('now')) as today_reviews,
-                (SELECT MAX(r.reviewed_at) FROM reviews r JOIN cards c ON r.card_id = c.id JOIN decks d ON c.deck_id = d.id WHERE d.user_id = u.id) as last_activity
-            FROM users u
-            ORDER BY u.id DESC
+            SELECT id, username, email, name, is_admin, created_at
+            FROM users
+            ORDER BY id DESC
         `).all();
 
-        return new Response(JSON.stringify({ users: users.results || [] }), {
+        // 각 사용자별 통계 계산
+        const userStats = [];
+        for (const user of (users.results || [])) {
+            const deckCount = await env.DB.prepare('SELECT COUNT(*) as count FROM decks WHERE user_id = ?').bind(user.id).first();
+
+            userStats.push({
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                name: user.name,
+                is_admin: user.is_admin,
+                created_at: user.created_at,
+                deck_count: deckCount?.count || 0,
+                card_count: 0,
+                total_reviews: 0,
+                today_reviews: 0,
+                last_activity: null
+            });
+        }
+
+        return new Response(JSON.stringify({ users: userStats }), {
             status: 200, headers: { 'Content-Type': 'application/json' }
         });
     } catch (error) {
-        return new Response(JSON.stringify({ error: 'Failed to get user stats' }), {
+        console.error('user-stats error:', error);
+        return new Response(JSON.stringify({ error: 'Failed to get user stats', details: error.message }), {
             status: 500, headers: { 'Content-Type': 'application/json' }
         });
     }
