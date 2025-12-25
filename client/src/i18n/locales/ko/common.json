@@ -1,38 +1,38 @@
 {
   "appName": "Pangstudy",
   "nav": {
-    "decks": "Decks",
-    "recommendations": "Recommendations",
-    "assigned": "Assigned",
-    "admin": "Admin",
-    "logout": "Logout",
-    "login": "Login"
+    "decks": "덱 목록",
+    "recommendations": "추천",
+    "assigned": "할당된 학습",
+    "admin": "관리자",
+    "logout": "로그아웃",
+    "login": "로그인"
   },
   "button": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "create": "Create",
-    "import": "Import",
-    "export": "Export",
-    "back": "Back",
-    "submit": "Submit",
-    "confirm": "Confirm",
-    "close": "Close"
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "수정",
+    "create": "만들기",
+    "import": "가져오기",
+    "export": "내보내기",
+    "back": "뒤로",
+    "submit": "제출",
+    "confirm": "확인",
+    "close": "닫기"
   },
   "message": {
-    "loading": "Loading...",
-    "error": "An error occurred",
-    "success": "Success",
-    "confirm": "Are you sure?",
-    "noData": "No data",
-    "required": "This field is required"
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "success": "성공",
+    "confirm": "정말로 하시겠습니까?",
+    "noData": "데이터가 없습니다",
+    "required": "필수 항목입니다"
   },
   "language": {
-    "select": "Language",
-    "ko": "Korean",
-    "en": "English",
-    "id": "Indonesian"
+    "select": "언어",
+    "ko": "한국어",
+    "en": "영어",
+    "id": "인도네시아어"
   }
 }

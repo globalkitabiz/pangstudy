@@ -1,31 +1,31 @@
 {
   "session": {
-    "showAnswer": "Show Answer",
-    "rateTitle": "How well did you remember?",
-    "again": "Again",
-    "hard": "Hard",
-    "good": "Good",
-    "easy": "Easy",
-    "complete": "Study Complete!",
-    "cardsStudied": "You studied {{count}} cards",
-    "backToDecks": "Back to Decks",
-    "continueStudy": "Continue Study",
-    "noCards": "No cards to study",
-    "allDone": "All done for today!"
+    "showAnswer": "정답 보기",
+    "rateTitle": "얼마나 잘 기억했나요?",
+    "again": "다시",
+    "hard": "어려움",
+    "good": "보통",
+    "easy": "쉬움",
+    "complete": "학습 완료!",
+    "cardsStudied": "{{count}}장의 카드를 학습했습니다",
+    "backToDecks": "덱 목록으로",
+    "continueStudy": "계속 학습",
+    "noCards": "학습할 카드가 없습니다",
+    "allDone": "오늘 학습을 모두 마쳤습니다!"
   },
   "progress": {
-    "remaining": "Remaining: {{count}}",
-    "new": "New",
-    "learning": "Learning",
-    "review": "Review",
-    "total": "Total"
+    "remaining": "남음: {{count}}",
+    "new": "새 카드",
+    "learning": "학습 중",
+    "review": "복습",
+    "total": "전체"
   },
   "assigned": {
-    "title": "Assigned Study",
-    "empty": "No assigned study",
-    "dueDate": "Due: {{date}}",
-    "start": "Start Study",
-    "completed": "Completed",
-    "pending": "Pending"
+    "title": "할당된 학습",
+    "empty": "할당된 학습이 없습니다",
+    "dueDate": "마감일: {{date}}",
+    "start": "학습 시작",
+    "completed": "완료됨",
+    "pending": "대기 중"
   }
 }

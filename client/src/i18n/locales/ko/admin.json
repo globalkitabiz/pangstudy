@@ -1,62 +1,62 @@
 {
   "nav": {
-    "dashboard": "Dashboard",
-    "users": "Users",
-    "decks": "Decks",
-    "assign": "Assign",
-    "stats": "Statistics",
-    "backToSite": "Back to Site"
+    "dashboard": "대시보드",
+    "users": "사용자",
+    "decks": "덱",
+    "assign": "할당",
+    "stats": "통계",
+    "backToSite": "사이트로 돌아가기"
   },
   "dashboard": {
-    "title": "Dashboard",
-    "totalUsers": "Total Users",
-    "totalDecks": "Total Decks",
-    "totalCards": "Total Cards",
-    "totalReviews": "Total Reviews",
-    "todayReviews": "Today's Reviews"
+    "title": "대시보드",
+    "totalUsers": "전체 사용자",
+    "totalDecks": "전체 덱",
+    "totalCards": "전체 카드",
+    "totalReviews": "전체 복습",
+    "todayReviews": "오늘 복습"
   },
   "users": {
-    "title": "User Management",
-    "name": "Name",
-    "email": "Email",
-    "isAdmin": "Admin",
-    "actions": "Actions",
-    "delete": "Delete",
-    "makeAdmin": "Make Admin",
-    "removeAdmin": "Remove Admin",
-    "addUser": "Add User",
-    "confirmDelete": "Are you sure you want to delete this user?"
+    "title": "사용자 관리",
+    "name": "이름",
+    "email": "이메일",
+    "isAdmin": "관리자",
+    "actions": "작업",
+    "delete": "삭제",
+    "makeAdmin": "관리자 지정",
+    "removeAdmin": "관리자 해제",
+    "addUser": "사용자 추가",
+    "confirmDelete": "이 사용자를 삭제하시겠습니까?"
   },
   "decks": {
-    "title": "Deck Management",
-    "name": "Deck Name",
-    "owner": "Owner",
-    "cardCount": "Cards",
-    "createdAt": "Created",
-    "delete": "Delete",
-    "confirmDelete": "Are you sure you want to delete this deck?",
-    "viewCards": "View Cards"
+    "title": "덱 관리",
+    "name": "덱 이름",
+    "owner": "소유자",
+    "cardCount": "카드",
+    "createdAt": "생성일",
+    "delete": "삭제",
+    "confirmDelete": "이 덱을 삭제하시겠습니까?",
+    "viewCards": "카드 보기"
   },
   "assign": {
-    "title": "Assign Study",
-    "selectUser": "Select User",
-    "selectDeck": "Select Deck",
-    "dueDate": "Due Date",
-    "submit": "Assign",
-    "current": "Current Assignments",
-    "noAssignments": "No assignments",
-    "delete": "Delete",
-    "assignedTo": "Assigned to",
-    "deck": "Deck"
+    "title": "학습 할당",
+    "selectUser": "사용자 선택",
+    "selectDeck": "덱 선택",
+    "dueDate": "마감일",
+    "submit": "할당",
+    "current": "현재 할당",
+    "noAssignments": "할당 없음",
+    "delete": "삭제",
+    "assignedTo": "할당 대상",
+    "deck": "덱"
   },
   "stats": {
-    "title": "Statistics",
-    "user": "User",
-    "deckCount": "Decks",
-    "cardCount": "Cards",
-    "totalReviews": "Total Reviews",
-    "todayReviews": "Today",
-    "lastActivity": "Last Activity",
-    "noActivity": "No activity"
+    "title": "통계",
+    "user": "사용자",
+    "deckCount": "덱",
+    "cardCount": "카드",
+    "totalReviews": "전체 복습",
+    "todayReviews": "오늘",
+    "lastActivity": "최근 활동",
+    "noActivity": "활동 없음"
   }
 }
