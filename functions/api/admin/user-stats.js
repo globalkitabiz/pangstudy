@@ -55,32 +55,21 @@ export async function onRequestGet(context) {
     }
 
     try {
-        // 간단한 쿼리로 사용자 목록 조회
-        const users = await env.DB.prepare(`
-            SELECT id, username, email, name, is_admin, created_at
-            FROM users
-            ORDER BY id DESC
-        `).all();
+        // 가장 기본적인 사용자 목록만 조회
+        const users = await env.DB.prepare('SELECT * FROM users ORDER BY id DESC').all();
 
-        // 각 사용자별 통계 계산
-        const userStats = [];
-        for (const user of (users.results || [])) {
-            const deckCount = await env.DB.prepare('SELECT COUNT(*) as count FROM decks WHERE user_id = ?').bind(user.id).first();
-
-            userStats.push({
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                name: user.name,
-                is_admin: user.is_admin,
-                created_at: user.created_at,
-                deck_count: deckCount?.count || 0,
-                card_count: 0,
-                total_reviews: 0,
-                today_reviews: 0,
-                last_activity: null
-            });
-        }
+        const userStats = (users.results || []).map(user => ({
+            id: user.id,
+            username: user.username || user.name || 'Unknown',
+            email: user.email || '',
+            name: user.name || '',
+            is_admin: user.is_admin,
+            deck_count: 0,
+            card_count: 0,
+            total_reviews: 0,
+            today_reviews: 0,
+            last_activity: null
+        }));
 
         return new Response(JSON.stringify({ users: userStats }), {
             status: 200, headers: { 'Content-Type': 'application/json' }
