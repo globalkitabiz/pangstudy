@@ -11,7 +11,6 @@ export class Layout extends Component {
         <header className="layout-header">
           <div className="header-content">
             <div className="header-brand">
-              <small className="brand-subtitle">Inspired by Anki</small>
               <h1 className="brand-title">Pangstudy</h1>
             </div>
             <nav className="header-nav">
